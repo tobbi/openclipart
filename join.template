@@ -1,0 +1,9 @@
+<div id="upload-box" class="sidebox" >
+	<div class="boxtop"></div>
+	<ul class="clearfix img-actions">
+		<li class="u-svg">
+			<a href="/register">Join Now!</a>
+		</li>
+	</ul>
+	<div class="boxbottom"></div>
+</div>
