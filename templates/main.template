@@ -1,3 +1,4 @@
+{{%UNESCAPED}}
 <!DOCTYPE html>
 <html lang='en' dir='ltr'>
 <head>
@@ -39,9 +40,12 @@
               {{/username}}
               {{^username}}
                 <ul>
-                  <li></li>
+                 <li><a href="{{root}}/login{{redirect}}">Log in</a></li>
+                 <li>|</li>
+                 <li><a href="{{root}}/register">Register</a></li>
                 </ul>
               {{/username}}
+              <div class="clearfix"></div>
             </div>
             <form id="search" method="get" action="{{root}}/search">
                 <div>
@@ -91,42 +95,26 @@
 
 ​        -->
         <div id="notifications-bar">
-
+          {{#notifications}}
           <div class="notifications-bar">
             {{notifications}}
           </div>
-
+          {{/notifications}}
         </div>
         <!--debug: start content(17)-->  <!-- [EMPTY] -->
         <div id="content"  class="clearfix">
           <!--start upload-box(865)-->
 
-          {{join.template}} || {{upload.template}}
+          <!-- {{join.template}} || {{upload.template}} -->
 
           <div id="sidebar-r">
             {{sidebar}}
           </div>
-
-          {{wellcome.template}} || {{activities.template}}
-
-		  <!--debug: start most-popular-small(1627)-->
-          <h3>
-            <a href="/most-popular-weekly">Most Popular Clipart This Week</a>
-            <img alt="" src="/image/15px/svg_to_png/OCAL_Favorites_Icon_Selected_Red.png">
-            <a href="/rss/popular-weekly.xml" target="_blank">
-              <img src="/assets/images/images/rss-sm.png" alt="RSS" />
-            </a>
-          </h3>
-          <!-- inherit 31 -->
-          <!--
-             SELECT * FROM ocal_favs, ocal_files WHERE (nsfw = 0 or nsfw=[nsfw]) and upload_tags not like '%pd_issue%' and ocal_favs.clipart_id = ocal_files.id AND ( YEAR(ocal_favs.fav_date) = YEAR(CURRENT_DATE) AND ( TO_DAYS(CURRENT_DATE) - TO_DAYS(ocal_favs.fav_date) < 8 ) )  OR ( TO_DAYS(CURRENT_DATE) < 8 AND ( YEAR(ocal_favs.fav_date) = (YEAR(CURRENT_DATE) - 1 ) ) AND TO_DAYS(ocal_favs.fav_date) > 355 ) GROUP BY ocal_files.id ORDER BY COUNT(DISTINCT ocal_favs.username) DESC LIMIT 8
-          -->
-		  
-​
           
+          {{content}}
           
-
-
+         <!-- {{wellcome.template}} || {{activities.template}} -->
+         
 
 
         <!--start recent-collections-box(1195)-->
@@ -136,49 +124,49 @@ SELECT set_list_titles.id, set_list_titles.username, set_list_titles.set_title, 
         <div id="recent-collections-box"  class="sidebox">
 
         </div>
-        <!-- start footer(20)--> 
-        <div id="footer">
-            <div class="clearfix" id="forfooter">
-                <dl>
-                    <dt><a href="{{root}}/"><img alt="Open ClipArt Library" src="{{root}}/images/ocal.png"/></a></dt>
-                    <dd><a href="{{root}}/about">Open Clipart Library</a> is <a href="http://en.wikipedia.org/wiki/Open_Clip_Art_Library">the library</a> for high-quality free clipart. We create high quality <a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">vector graphics</a> for fun. <a href="http://bugs.launchpad.net/openclipart">Found Bugs?</a> <a href="http://blueprints.launchpad.net/openclipart">Want Features?</a> <a href="{{root}}/docs/api">Make Apps</a>.</dd>
-                </dl>
-                <dl>
-                    <dt><a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/"><img alt="Creative Commons Zero Public Domain Dedication" src="{{root}}/images/cc-zero-white-140.png"/></a></dt>
-                    <dd>Unless noted, content on this site is waived of all copyright and related or neighboring rights under the <a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/">CC0 PD Dedication</a>. See <a href="{{root}}/policies">Policies</a>.</dd>
-                </dl>
-                <dl>
-                    <dt><a href="http://www.aikiframework.org"><img alt="aiki framework" src="{{root}}/images/aiki.png"/></a></dt>
-                    <dd><a href="http://aikiframework.org/">Aiki Framework</a> is an open source web framework our project uses and recommends for building web applications.</dd>
-                </dl>
-            </div>
-            <div id="links">
-                <strong><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FSUSWMQXL8AKS">Donate to Support Hosting + Maintenance</a></strong>,
-                <a href="http://aikiframework.org/">Aiki Framework 爻</a>, 
-                <a href="http://fabricatorz.com/">Fabricatorz 王</a>, 
-                <a href="http://www.inkscape.org/">Inkscape</a>, 
-                <a href="http://www.freepik.com/">freepik</a>,
-                <a href="http://gandi.net/">Gandi.net</a>, 
-                <a href="http://linode.net/">Linode</a>, 
-                <a href="http://www.openfontlibrary.org/">Open Font Library</a>,
-                <a href="http://sharism.org/">Sharism ✳</a>
-            </div>
-            <!--
-            <script type="text/javascript">
-              var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-              document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-            </script>
-            <script type="text/javascript">
-              try {
-              var pageTracker = _gat._getTracker("UA-7908533-1");
-              pageTracker._setDomainName(".openclipart.org");
-              pageTracker._trackPageview();
-              } catch(err) {}
-            </script>
-            -->
-            <script src="{{root}}/libs/json/json-rpc/json-rpc.js"></script>
-            <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+      </div>
+      <!-- start footer(20)--> 
+      <div id="footer">
+        <div class="clearfix" id="forfooter">
+          <dl>
+            <dt><a href="{{root}}/"><img alt="Open ClipArt Library" src="{{root}}/images/ocal.png"/></a></dt>
+            <dd><a href="{{root}}/about">Open Clipart Library</a> is <a href="http://en.wikipedia.org/wiki/Open_Clip_Art_Library">the library</a> for high-quality free clipart. We create high quality <a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">vector graphics</a> for fun. <a href="http://bugs.launchpad.net/openclipart">Found Bugs?</a> <a href="http://blueprints.launchpad.net/openclipart">Want Features?</a> <a href="{{root}}/docs/api">Make Apps</a>.</dd>
+          </dl>
+          <dl>
+            <dt><a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/"><img alt="Creative Commons Zero Public Domain Dedication" src="{{root}}/images/cc-zero-white-140.png"/></a></dt>
+            <dd>Unless noted, content on this site is waived of all copyright and related or neighboring rights under the <a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/">CC0 PD Dedication</a>. See <a href="{{root}}/policies">Policies</a>.</dd>
+          </dl>
+          <dl>
+            <dt><a href="http://www.aikiframework.org"><img alt="aiki framework" src="{{root}}/images/aiki.png"/></a></dt>
+            <dd><a href="http://aikiframework.org/">Aiki Framework</a> is an open source web framework our project uses and recommends for building web applications.</dd>
+          </dl>
         </div>
+        <div id="links">
+          <strong><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FSUSWMQXL8AKS">Donate to Support Hosting + Maintenance</a></strong>,
+          <a href="http://aikiframework.org/">Aiki Framework 爻</a>, 
+          <a href="http://fabricatorz.com/">Fabricatorz 王</a>, 
+          <a href="http://www.inkscape.org/">Inkscape</a>, 
+          <a href="http://www.freepik.com/">freepik</a>,
+          <a href="http://gandi.net/">Gandi.net</a>, 
+          <a href="http://linode.net/">Linode</a>, 
+          <a href="http://www.openfontlibrary.org/">Open Font Library</a>,
+          <a href="http://sharism.org/">Sharism ✳</a>
+        </div>
+        <!--
+        <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+        try {
+        var pageTracker = _gat._getTracker("UA-7908533-1");
+        pageTracker._setDomainName(".openclipart.org");
+        pageTracker._trackPageview();
+        } catch(err) {}
+        </script>
+        -->
+        <script src="{{root}}/libs/json/json-rpc/json-rpc.js"></script>
+        <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
     </div><!-- #main -->
 
 </body>
