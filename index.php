@@ -6,11 +6,12 @@ Mustache_Autoloader::register();
 require_once('libs/Slim/Slim/Slim.php');
 
 session_start();
-$config = array();
+//require('config.php');
 
-//$config['db_user'] = 'root';
-//$config['db_passord'] =
-$config['root'] = 'http://localhost/ocal';
+//mysql_connect($config['db_host'], $config['db_user'], $config['db_pass']);
+//@mysql_select_db($config['db_name']) or die("Unable to select database");
+
+$config['root'] = 'http://staging.openclipart.org';
 
 $app = new Slim();
 
@@ -61,14 +62,17 @@ $app->get('/', function() use ($app) {
     $mustache = new Mustache_Engine(array(
         'escape' => function($val) { return $val; }
     ));
-    $data = get_data();
-    $sidebar = render_array_files($mustache, array('join'), $data);
-    $data['sidebar'] = implode('\n', $sidebar);
-    $content = render_array_files($mustache, array('wellcome'), $data);
-    $data['content'] = implode('\n', $content);
+    $common = get_data();
+    $sidebar = implode("\n", render_array_files($mustache,
+                                                array('join', 'facebook_box'),
+                                                $common));
+    $content = implode("\n", render_array_files($mustache,
+                                                array('wellcome'),
+                                                $common));
+    $data = array_merge($common, array('sidebar' => $sidebar,
+                                       'content' => $content));
     echo $mustache->render($main_template, $data);
 });
-
 
 
 $app->run();
