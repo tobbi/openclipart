@@ -2,7 +2,7 @@
   <div class="r-img">
     <div class="r-img-i">
 	  <a href="/detail/{{id}}/{{link}}">
-	  <img alt="#" src="/image/90px/svg_to_png/{{id}}/{{filename_png}}"/>
+	  <img alt="#" src="/image/90/{{user_name}}/{{filename_png}}"/>
 	  </a>
 	</div>
 	<h4>

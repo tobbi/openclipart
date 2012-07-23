@@ -146,10 +146,11 @@ $app->get('/', function() use ($app, $mysqli) {
     } else {
         $nsfw = 'nsfw = 0';
     }
+
     $query = "SELECT ocal_files.id, link, filename, upload_name, upload_date,".
         "full_path, file_num_download, count(DISTINCT ocal_favs.username) as ".
-        "num_favorites FROM ocal_favs, ocal_files WHERE (nsfw = 0) and " .
-        "upload_tags not like '%pd_issue%' and ocal_favs.clipart_id = ".
+        "num_favorites, user_name FROM ocal_favs, ocal_files WHERE (nsfw = 0) " .
+        "and upload_tags not like '%pd_issue%' and ocal_favs.clipart_id = ".
         "ocal_files.id AND ( YEAR(ocal_favs.fav_date) = YEAR(CURRENT_DATE)".
         "AND ( TO_DAYS(CURRENT_DATE) - TO_DAYS(ocal_favs.fav_date) < 8 ) )".
         "OR ( TO_DAYS(CURRENT_DATE) < 8 AND ( YEAR(ocal_favs.fav_date) = ".
@@ -182,6 +183,25 @@ $app->get('/', function() use ($app, $mysqli) {
     echo $mustache->render($main_template, $data);
 });
 
+$app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app) {
+    $width = intval($w);
+    $response = $app->response();
+    $response['Content-Type'] = 'image/png';
+    $png = "people/$user/${width}px-$file";
+    $svg = "people/$user/" . preg_replace("/.png$/", '.svg', $file);
+    if (file_exists($png)) {
+        echo file_get_contents($png);
+    } else {
+        $svg = file_get_contents($svg);
+        exec("rsvg --width $width $svg $png");
+        if (!file_exists($png)) {
+            $response['Content-Type'] = "text/plain";
+            $app->pass();
+        } else {
+            echo file_get_contents($png);
+        }
+    }
+});
 
 $app->run();
 
