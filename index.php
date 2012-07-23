@@ -187,15 +187,15 @@ $app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app)
     $width = intval($w);
     $response = $app->response();
     $response['Content-Type'] = 'image/png';
-    $png = "people/$user/${width}px-$file";
-    $svg = "people/$user/" . preg_replace("/.png$/", '.svg', $file);
+    $root_dir = dirname(__FILE__);
+    $png = "$root_dir/people/$user/${width}px-$file";
+    $svg = "$root_dir/people/$user/" . preg_replace("/.png$/", '.svg', $file);
     if (file_exists($png)) {
         echo file_get_contents($png);
     } else {
-        $svg = file_get_contents($svg);
         exec("rsvg --width $width $svg $png");
         if (!file_exists($png)) {
-            $response['Content-Type'] = "text/plain";
+            $response['Content-Type'] = "text/html";
             $app->pass();
         } else {
             echo file_get_contents($png);
