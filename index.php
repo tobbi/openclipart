@@ -6,10 +6,18 @@ Mustache_Autoloader::register();
 require_once('libs/Slim/Slim/Slim.php');
 
 session_start();
-//require('config.php');
+require('config.php');
 
 //mysql_connect($config['db_host'], $config['db_user'], $config['db_pass']);
 //@mysql_select_db($config['db_name']) or die("Unable to select database");
+
+$mysqli = new mysqli($config['db_host'], $config['db_user'], $config['db_pass']);
+$mysqli->select_db($config['db_name']);
+
+if ($mysqli->connect_errno) {
+    echo "Connect failed: " . $mysqli->connect_error . "\n";
+    exit();
+}
 
 $config['root'] = 'http://staging.openclipart.org';
 
@@ -52,12 +60,75 @@ function get_data() {
 function render_array_files($mustache, $templates, $data) {
     $result = array();
     foreach ($templates as $template) {
-        $result[] = file_get_contents("templates/$template.template");
+        $tmpl = file_get_contents("templates/$template.template");
+        $result[] = $mustache->render($tmpl, $data);
     }
     return $result;
 }
 
-$app->get('/', function() use ($app) {
+function mysqli_get_array($query) {
+    global $mysqli;
+    $result = array();
+    $ret = $mysqli->query($query);
+    if (!$ret) {
+        die($mysqli->error);
+    }
+    while ($row = $ret->fetch_assoc()) {
+        $result[] = $row;
+    }
+    $ret->close();
+    return $result;
+}
+
+function human_date($date) {
+    $timestamp = strtotime($date);
+    if ($timestamp >= strtotime("-1 minutes"))
+        return "1 minute ago";
+    if ($timestamp >= strtotime("-2 minutes"))
+        return "2 minutes ago";
+    if ($timestamp >= strtotime("-3 minutes"))
+        return "3 minutes ago";
+    if ($timestamp >= strtotime("-4 minutes"))
+        return "4 minutes ago";
+    if ($timestamp >= strtotime("-5 minutes"))
+        return "5 minutes ago";
+    if ($timestamp >= strtotime("-10 minutes"))
+        return "10 minutes ago";
+    if ($timestamp >= strtotime("-30 minutes"))
+        return "half an hour ago";
+    if ($timestamp >= strtotime("-1 hours"))
+        return "1 hour ago";
+    if ($timestamp >= strtotime("-2 hours"))
+        return "2 hours ago";
+    if ($timestamp >= strtotime("-3 hours"))
+        return "3 hours ago";
+    if ($timestamp >= strtotime("-4 hours"))
+        return "4 hours ago";
+    if ($timestamp >= strtotime("-5 hours"))
+        return "5 hours ago";
+    if ($timestamp >= strtotime("-6 hours"))
+        return "6 hours ago";
+    if ($timestamp >= strtotime("-7 hours"))
+        return "7 hours ago";
+    if ($timestamp >= strtotime("-8 hours"))
+        return "8 hours ago";
+    if ($timestamp >= strtotime("-9 hours"))
+        return "9 hours ago";
+    if ($timestamp >= strtotime("-24 hours"))
+        return "today";
+    if ($timestamp >= strtotime("-1 days"))
+        return "yesterday";
+    if ($timestamp >= strtotime("-7 days"))
+        return "on ".date("l",$timestamp);
+    if ($timestamp >= strtotime("-1 week"))
+        return "1 week ago";
+    if ($timestamp >= strtotime("-2 week"))
+        return "2 weeks ago";
+    else
+        return date("d.m.Y",$timestamp);
+}
+
+$app->get('/', function() use ($app, $mysqli) {
     $main_template = file_get_contents('templates/main.template');
     $mustache = new Mustache_Engine(array(
         'escape' => function($val) { return $val; }
@@ -69,6 +140,43 @@ $app->get('/', function() use ($app) {
     $content = implode("\n", render_array_files($mustache,
                                                 array('wellcome'),
                                                 $common));
+    //(nsfw = 0 or nsfw=[nsfw])
+    if (isset($common['nsfw']) && $common['nsfw']) {
+        $nsfw = '(nsfw = 0 or nsfw = 1)';
+    } else {
+        $nsfw = 'nsfw = 0';
+    }
+    $query = "SELECT ocal_files.id, link, filename, upload_name, upload_date,".
+        "full_path, file_num_download, count(DISTINCT ocal_favs.username) as ".
+        "num_favorites FROM ocal_favs, ocal_files WHERE (nsfw = 0) and " .
+        "upload_tags not like '%pd_issue%' and ocal_favs.clipart_id = ".
+        "ocal_files.id AND ( YEAR(ocal_favs.fav_date) = YEAR(CURRENT_DATE)".
+        "AND ( TO_DAYS(CURRENT_DATE) - TO_DAYS(ocal_favs.fav_date) < 8 ) )".
+        "OR ( TO_DAYS(CURRENT_DATE) < 8 AND ( YEAR(ocal_favs.fav_date) = ".
+        "(YEAR(CURRENT_DATE) - 1 ) ) AND TO_DAYS(ocal_favs.fav_date) > 355)".
+        "GROUP BY ocal_files.id ORDER BY num_favorites DESC LIMIT 8";
+    $ret = $mysqli->query($query);
+    if (!$ret) {
+        die($mysqli->error);
+    }
+    $clipart_list = array();
+    while ($row = $ret->fetch_assoc()) {
+        $filename_png = preg_replace("/.svg$/", ".png", $row['filename']);
+        $human_date = human_date($row['upload_date']);
+        $clipart_list[] = array_merge($row,
+                                      array('filename_png' => $filename_png,
+                                            'human_date' => $human_date,
+                                            //TODO: check when close this query
+                                            'have_fav' => false));
+    }
+    $ret->close();
+    $clipart_list_template = file_get_contents("templates/clipart_list.template");
+    $clipart_list = array_merge($common, array('cliparts' => $clipart_list));
+    $data = array_merge($common, array(
+        'content' => $mustache->render($clipart_list_template, $clipart_list)
+    ));
+    $mst_pop_tmpl = file_get_contents("templates/most_popular_thumbs.template");
+    $content .= $mustache->render($mst_pop_tmpl, $data);
     $data = array_merge($common, array('sidebar' => $sidebar,
                                        'content' => $content));
     echo $mustache->render($main_template, $data);

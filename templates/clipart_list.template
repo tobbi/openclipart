@@ -2,12 +2,10 @@
   <div class="r-img">
     <div class="r-img-i">
 	  <a href="/detail/{{id}}/{{link}}">
-	  <!--(#(inherent:1885|SELECT * FROM ocal_files WHERE id = ((id)) LIMIT 1)#)-->
 	  <img alt="#" src="/image/90px/svg_to_png/{{id}}/{{filename_png}}"/>
 	  </a>
 	</div>
 	<h4>
-	  <!--(#(inherent:1885|SELECT * FROM ocal_files WHERE id = ((id)) LIMIT 1)#)-->
 	  <a href="/detail/{{id}}/{{link}}">{{upload_name}}</a>
 	</h4>
 	<p>by <a href="/user-detail/{{user_name}}">{{user_name}}</a><br />
@@ -19,13 +17,13 @@
     <!-- inherit:1591 - favorite-icon-->
     <!-- SELECT ocal_files.upload_name, aiki_users.username as artist_name, ocal_files.id, aiki_users.email FROM ocal_files, aiki_users WHERE ocal_files.user_name = aiki_users.username AND ocal_files.id = ((id)) LIMIT 1 -->
     {{^userid}}
-    <div class="favorite-icon" data-id="{{id}}">
-      <div class="favorite-add">
-        <!--<img src="/image/12px/svg_to_png/OCAL_Favorites_Icon_Unselected.png" alt="#">-->
+      <div class="favorite-icon" data-id="{{id}}">
+        <div class="favorite-add">
+          <!--<img src="/image/12px/svg_to_png/OCAL_Favorites_Icon_Unselected.png" alt="#">-->
+        </div>
+        <!-- SELECT COUNT(DISTINCT username) as num_favorites FROM ocal_favs WHERE clipart_id = ((id)) -->
+        <div class="clipart_favs_num">{{num_favorites}}</div>
       </div>
-      <!-- SELECT COUNT(DISTINCT username) as num_favorites FROM ocal_favs WHERE clipart_id = ((id)) -->
-      <div class="clipart_favs_num">{{num_favorites}}</div>
-    </div>
     {{/userid}}
     {{#userid}}
       <div class="favorite-icon" data-id="{{id}}">
@@ -74,4 +72,5 @@
       });
       </script>​
     {{/userid}}
-</div>
+  </div>
+{{/cliparts}}
