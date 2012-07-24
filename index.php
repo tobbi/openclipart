@@ -128,7 +128,12 @@ function human_date($date) {
         return date("d.m.Y",$timestamp);
 }
 
+function get_time() {
+    return (float)array_sum(explode(' ',microtime()));
+}
+
 $app->get('/', function() use ($app, $mysqli) {
+    $start_time = get_time();
     $main_template = file_get_contents('templates/main.template');
     $mustache = new Mustache_Engine(array(
         'escape' => function($val) { return $val; }
@@ -181,6 +186,10 @@ $app->get('/', function() use ($app, $mysqli) {
     $data = array_merge($common, array('sidebar' => $sidebar,
                                        'content' => $content));
     echo $mustache->render($main_template, $data);
+    
+    // load time
+	$end_time = sprintf("%.4f", (get_time()-$start_time));
+    echo "\n <!-- Time: $end_time seconds -->";
 });
 
 $app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app) {
@@ -200,6 +209,25 @@ $app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app)
         } else {
             echo file_get_contents($png);
         }
+    }
+});
+
+$app->post('/rpc/:name', function($name) use ($app) {
+    $root_dir = dirname(__FILE__);
+    $filename = "$root_dir/rpc/".$name.".php";
+    if (!class_exists($name)) {
+        if (file_exists($filename)) {
+            require_once($filename);
+            handle_json_rpc(new $name());
+        } else {
+            $msg = "ERROR: service `$name' not found";
+            return json_encode(array(
+                "error" => array("code" => 108, "message" => $msg)
+            ));
+        }
+    } else {
+        require('libs/json-rpc/json-rpc.php');
+        handle_json_rpc(new $name());
     }
 });
 
