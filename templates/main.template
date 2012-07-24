@@ -137,18 +137,18 @@ SELECT set_list_titles.id, set_list_titles.username, set_list_titles.set_title, 
             <dd>Unless noted, content on this site is waived of all copyright and related or neighboring rights under the <a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/">CC0 PD Dedication</a>. See <a href="{{root}}/policies">Policies</a>.</dd>
           </dl>
           <dl>
-            <dt><a href="http://www.aikiframework.org"><img alt="aiki framework" src="{{root}}/images/aiki.png"/></a></dt>
-            <dd><a href="http://aikiframework.org/">Aiki Framework</a> is an open source web framework our project uses and recommends for building web applications.</dd>
+            <dt><a href="https://en.wikipedia.org/wiki/Svg"><img alt="Scalable Vector Graphics" src="{{root}}/images/svg_white.png"/></a></dt>
+            <dd><a href="http://www.w3.org/Graphics/SVG/">Scalable Vector Graphics (SVG)</a> is a specifications of file format for 2D vector graphics, it's an open standard that has been under development by the <a href="http://www.w3.org/">World Wide Web Consortium (W3C)</a> since 1999.</dd>
           </dl>
         </div>
         <div id="links">
           <strong><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FSUSWMQXL8AKS">Donate to Support Hosting + Maintenance</a></strong>,
-          <a href="http://aikiframework.org/">Aiki Framework 爻</a>, 
-          <a href="http://fabricatorz.com/">Fabricatorz 王</a>, 
-          <a href="http://www.inkscape.org/">Inkscape</a>, 
+          <a href="http://aikiframework.org/">Aiki Framework 爻</a>,
+          <a href="http://fabricatorz.com/">Fabricatorz 王</a>,
+          <a href="http://www.inkscape.org/">Inkscape</a>,
           <a href="http://www.freepik.com/">freepik</a>,
-          <a href="http://gandi.net/">Gandi.net</a>, 
-          <a href="http://linode.net/">Linode</a>, 
+          <a href="http://gandi.net/">Gandi.net</a>,
+          <a href="http://linode.net/">Linode</a>,
           <a href="http://www.openfontlibrary.org/">Open Font Library</a>,
           <a href="http://sharism.org/">Sharism ✳</a>
         </div>
