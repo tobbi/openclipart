@@ -12,7 +12,7 @@
 	<!-- <php $aiki->web2date->parseweb2date( ((upload_date)) ); php> -->
 	{{human_date}}
     </p>
-    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/{{full_path}}{{filename}}"><img src="/assets/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{file_num_download}}</p>
+    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/{{full_path}}{{filename}}"><img src="/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{file_num_download}}</p>
     <!-- is logged in? -->
     <!-- inherit:1591 - favorite-icon-->
     <!-- SELECT ocal_files.upload_name, aiki_users.username as artist_name, ocal_files.id, aiki_users.email FROM ocal_files, aiki_users WHERE ocal_files.user_name = aiki_users.username AND ocal_files.id = ((id)) LIMIT 1 -->
