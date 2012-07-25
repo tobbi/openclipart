@@ -215,19 +215,19 @@ $app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app)
 $app->post('/rpc/:name', function($name) use ($app) {
     $root_dir = dirname(__FILE__);
     $filename = "$root_dir/rpc/".$name.".php";
-    if (!class_exists($name)) {
+    require('libs/json-rpc/json-rpc.php');
+    if (class_exists($name)) {
+        handle_json_rpc(new $name());
+    } else {
         if (file_exists($filename)) {
             require_once($filename);
             handle_json_rpc(new $name());
         } else {
             $msg = "ERROR: service `$name' not found";
-            return json_encode(array(
+            echo json_encode(array(
                 "error" => array("code" => 108, "message" => $msg)
             ));
         }
-    } else {
-        require('libs/json-rpc/json-rpc.php');
-        handle_json_rpc(new $name());
     }
 });
 
