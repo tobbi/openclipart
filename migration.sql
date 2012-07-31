@@ -1,6 +1,16 @@
 -- DATABASE MIGRATION FILE
 
-DROP TABLE IF EXISTS 
+DROP TABLE IF EXISTS openclipart_users;
+DROP TABLE IF EXISTS openclipart_files;
+DROP TABLE IF EXISTS openclipart_remixes;
+DROP TABLE IF EXISTS openclipart_favorites;
+DROP TABLE IF EXISTS openclipart_comments;
+DROP TABLE IF EXISTS openclipart_clipart_issues;
+DROP TABLE IF EXISTS openclipart_tags;
+DROP TABLE IF EXISTS openclipart_clipart_tags;
+DROP TABLE IF EXISTS openclipart_groups;
+DROP TABLE IF EXISTS openclipart_user_groups;
+DROP TABLE IF EXISTS openclipart_file_usage;
 
 -- USERS
 CREATE TABLE openclipart_users(id integer NOT NULL auto_increment, user_name varchar(255), password varchar(60), full_name varchar(255), country varchar(255), email varchar(255), avatar integer, homepage varchar(255), user_group integer, creation_date datetime, notify boolean, nsfw_filter boolean, rand_key varchar(40), PRIMARY KEY(id), FOREIGN KEY(user_group) REFERENCES openclipart_users_groups(id), FOREIGN KEY(avatar) REFERENCES openclipart_files(id));
