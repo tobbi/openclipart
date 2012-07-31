@@ -50,15 +50,18 @@ CREATE TABLE openclipart_clipart_issues(id integer NOT NULL auto_increment, date
 
 -- TAGS
 
-CREATE TABLE openclipart_tags(id integer NOT NULL auto_increment, name varchar(255), PRIMARY KEY(id, name));
+CREATE TABLE openclipart_tags(id integer NOT NULL auto_increment, name varchar(255) UNIQUE, PRIMARY KEY(id));
 
 CREATE TABLE openclipart_clipart_tags(clipart integer NOT NULL, tag integer NOT NULL, PRIMARY KEY(clipart, tag), FOREIGN KEY(clipart) REFERENCES openclipart_files(id), FOREIGN KEY(tag) REFERENCES openclipart_tags(id));
+
+
 
 -- NSFW TAG
 
 INSERT INTO openclipart_tags(name) VALUES('nsfw');
 
 INSERT IGNORE INTO openclipart_clipart_tags SELECT id, (SELECT id FROM openclipart_tags WHERE name = 'nsfw') FROM ocal_files where nsfw = 1;
+
 
 -- GROUPS
 
@@ -72,5 +75,3 @@ CREATE TABLE openclipart_user_groups(user_group integer NOT NULL, user integer N
 -- CLIPART in USE [NEW]
 
 CREATE TABLE openclipart_file_usage(id integer NOT NULL auto_increment, filename VARCHAR(255), clipart integer NOT NULL, primary key(id), FOREIGN KEY(clipart) REFERENCES openclipart_files(id));
-
-
