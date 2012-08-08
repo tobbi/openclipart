@@ -133,7 +133,7 @@ SELECT set_list_titles.id, set_list_titles.username, set_list_titles.set_title, 
             <dd><a href="{{root}}/about">Open Clipart Library</a> is <a href="http://en.wikipedia.org/wiki/Open_Clip_Art_Library">the library</a> for high-quality free clipart. We create high quality <a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">vector graphics</a> for fun. <a href="http://bugs.launchpad.net/openclipart">Found Bugs?</a> <a href="http://blueprints.launchpad.net/openclipart">Want Features?</a> <a href="{{root}}/docs/api">Make Apps</a>.</dd>
           </dl>
           <dl>
-            <dt><a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/"><img alt="Creative Commons Zero Public Domain Dedication" src="{{root}}/images/sharism-pd.png"/></a></dt>
+            <dt><a rel="license" href="http://sharism.org/agreement"><img alt="Sharing Agreement" src="{{root}}/images/sharism-pd.png"/></a></dt>
             <dd>Unless noted, content on this site is waived of all copyright and related or neighboring rights under the <a rel="license" href="http://sharism.org/agreement">Sharing Agreement</a>. See <a href="{{root}}/policies">Policies</a>.</dd>
           </dl>
           <dl>
