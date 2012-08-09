@@ -29,11 +29,11 @@ INSERT INTO openclipart_clipart(id, filename, title, owner, sha1, downloads, hid
 
 
 -- USERS
-CREATE TABLE openclipart_users(id integer NOT NULL auto_increment, user_name varchar(255) UNIQUE, password varchar(60), full_name varchar(255), country varchar(255), email varchar(255), avatar integer, homepage varchar(255), user_group integer, creation_date datetime, notify boolean, nsfw_filter boolean, rand_key varchar(40), PRIMARY KEY(id), FOREIGN KEY(user_group) REFERENCES openclipart_users_groups(id), FOREIGN KEY(avatar) REFERENCES openclipart_clipart(id));
+CREATE TABLE openclipart_users(id integer NOT NULL auto_increment, user_name varchar(255) UNIQUE, password varchar(60), full_name varchar(255), country varchar(255), email varchar(255), avatar integer, homepage varchar(255), creation_date datetime, notify boolean, nsfw_filter boolean, rand_key varchar(40), PRIMARY KEY(id), FOREIGN KEY(user_group) REFERENCES openclipart_users_groups(id), FOREIGN KEY(avatar) REFERENCES openclipart_clipart(id));
 
 -- copy non duplicate aiki_users
 
-INSERT INTO openclipart_users(id, user_name, password, full_name, country, email, avatar, homepage, user_group, creation_date, notify, nsfw_filter) SELECT minids.userid, username, password, full_name, country, email, clip.id as avatar, homepage, usergroup, first_login, notify, nsfwfilter FROM aiki_users users INNER JOIN (SELECT MIN(userid) as userid FROM aiki_users GROUP by username) minids ON minids.userid = users.userid LEFT OUTER JOIN openclipart_clipart clip ON clip.owner = users.userid AND RIGHT(users.avatar, 3) = 'svg' AND clip.filename = users.avatar;
+INSERT INTO openclipart_users(id, user_name, password, full_name, country, email, avatar, homepage, user_group, creation_date, notify, nsfw_filter) SELECT minids.userid, username, password, full_name, country, email, clip.id as avatar, homepage, first_login, notify, nsfwfilter FROM aiki_users users INNER JOIN (SELECT MIN(userid) as userid FROM aiki_users GROUP by username) minids ON minids.userid = users.userid LEFT OUTER JOIN openclipart_clipart clip ON clip.owner = users.userid AND RIGHT(users.avatar, 3) = 'svg' AND clip.filename = users.avatar;
 
 -- REMIXES
 
@@ -49,22 +49,23 @@ INSERT IGNORE INTO openclipart_favorites SELECT DISTINCT openclipart_clipart.id,
 
 -- COMMENTS
 
-CREATE TABLE openclipart_comments(id integer NOT NULL auto_increment, user integer NOT NULL, comment text, date datetime, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
+CREATE TABLE openclipart_comments(id INTEGER NOT NULL auto_increment, clipart INTEGER NOT NULL, user integer NOT NULL, comment text, date datetime, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id));
 
-INSERT INTO openclipart_comments(user, comment, date) SELECT topic_user, topic_upload, topic_date FROM cc_tbl_topics;
+INSERT INTO openclipart_comments SELECT id, topic_user, topic_upload, topic_date FROM cc_tbl_topics WHERE topic_deleted = 0 AND topic_upload != 0;
 
 -- ISSUES [NEW]
 
-CREATE TABLE openclipart_clipart_issues(id integer NOT NULL auto_increment, date datetime, clipart integer NOT NULL, user integer NOT NULL, title VARCHAR(255), comment TEXT, PRIMARY KEY(id), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id), FOREIGN KEY(user) REFERENCES openclipart_user(id));
+CREATE TABLE openclipart_clipart_issues(id integer NOT NULL auto_increment, date datetime, clipart integer NOT NULL, user integer NOT NULL, title VARCHAR(255), comment TEXT, closed boolean, PRIMARY KEY(id), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id), FOREIGN KEY(user) REFERENCES openclipart_user(id));
 
+-- TODO: USER == null - anonymous issues (unlogged captcha)
+
+-- TODO: CLOSED or STATE and another table openclipart_issue_states
 
 -- TAGS
 
 CREATE TABLE openclipart_tags(id integer NOT NULL auto_increment, name varchar(255) UNIQUE, PRIMARY KEY(id));
 
 CREATE TABLE openclipart_clipart_tags(clipart integer NOT NULL, tag integer NOT NULL, PRIMARY KEY(clipart, tag), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id), FOREIGN KEY(tag) REFERENCES openclipart_tags(id));
-
-
 
 
 -- NSFW TAG
@@ -76,7 +77,7 @@ INSERT IGNORE INTO openclipart_clipart_tags SELECT id, (SELECT id FROM openclipa
 
 -- GROUPS
 
-CREATE TABLE openclipart_groups(id integer NOT NULL auto_increment, name varchar(255), PRIMARY KEY(id));
+CREATE TABLE openclipart_groups(id integer NOT NULL auto_increment, name varchar(255) UNIQUE, PRIMARY KEY(id));
 
 INSERT INTO openclipart_groups VALUES(1, 'Admin'), (2, 'Librarian');
 
@@ -85,7 +86,9 @@ CREATE TABLE openclipart_user_groups(user_group INTEGER NOT NULL, user INTEGER N
 
 -- CLIPART in USE [NEW]
 
-CREATE TABLE openclipart_file_usage(id INTEGER NOT NULL auto_increment, filename VARCHAR(255), clipart INTEGER NOT NULL, primary key(id), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id));
+CREATE TABLE openclipart_file_usage(id INTEGER NOT NULL auto_increment, filename VARCHAR(255), clipart INTEGER NOT NULL, user INTEGER DEFAULT NULL, primary key(id), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
+
+-- user can be NULL for unlogged users ("I use this clipart" button, captcha and text box) librarians will check it and assign to Anonymous account (or different shared account).
 
 -- LINKS
 
@@ -107,7 +110,7 @@ INSERT INTO openclipart_contests(user, name, title, content, create_date, deadli
 
 -- COLLECTIONS
 
-CREATE TABLE openclipart_collections(id INTEGER NOT NULL auto_increment, name VARCHAR(255), date DATETIME, user INTEGER NOT NULL, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
+CREATE TABLE openclipart_collections(id INTEGER NOT NULL auto_increment, name VARCHAR(255) UNIQUE, title VARCHAR(255), date DATETIME, user INTEGER NOT NULL, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
 
 INSERT INTO openclipart_collections SELECT id, set_title, date_added, (SELECT min(userid) FROM aiki_users WHERE aiki_users.username = set_list_titles.username) FROM set_list_titles;
 
@@ -117,7 +120,7 @@ INSERT INTO openclipart_collection_clipart SELECT DISTINCT image_id, set_list_id
 
 -- LOGS
 
-CREATE TABLE openclipart_log_type(id INTEGER NOT NULL auto_increment, name VARCHAR(100), PRIMARY KEY(id));
+CREATE TABLE openclipart_log_type(id INTEGER NOT NULL auto_increment, name VARCHAR(100) UNIQUE, PRIMARY KEY(id));
 
 INSERT INTO openclipart_log_type VALUES (1, 'Login'), (2, 'Upload'), (3, 'Comment'), (4, 'Send Message'), (5, 'Delete Clipart'), (6, 'Modify Clipart'), (7, 'Report Issue'), (8, 'Vote'), (9, 'Favorite Clipart'), (10, 'Edit Button'), (11, 'Collection Create'), (12, 'Collection Delete'), (13, 'Add To Collection'), (14, 'Remove from Collection'), (15, 'Edit Profile'), (16, 'Change Avatar'), (17, 'Add Url'), (18, 'Register');
 
