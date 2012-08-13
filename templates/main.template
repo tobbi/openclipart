@@ -108,10 +108,14 @@
           <!-- {{join.template}} || {{upload.template}} -->
 
           <div id="sidebar-r">
-            {{sidebar}}
+            {{#sidebar}}
+              {{.}}
+            {{/sidebar}}
           </div>
           
-          {{content}}
+          {{#content}}
+            {{.}}
+          {{/content}}
           
          <!-- {{wellcome.template}} || {{activities.template}} -->
          

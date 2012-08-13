@@ -27,12 +27,12 @@
     {{/userid}}
     {{#userid}}
       <div class="favorite-icon" data-id="{{id}}">
-        {{#have_fav}}
+        {{#user_fav}}
           <div class="favorite-remove"></div>
-        {{/have_fav}}
-        {{^have_fav}}
+        {{/user_fav}}
+        {{^user_fav}}
           <div class="favorite-add"></div>
-        {{/have_fav}}
+        {{/user_fav}}
         <div class="clipart_favs_num">{{num_favorites}}</div>
       </div>
       <!-- one javascript for page -->

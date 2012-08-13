@@ -1,0 +1,30 @@
+-- TAG CLOUD
+SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT 10;
+
+-- list of artists
+select count(*) from (select userid, count(ocal_files.id) from ocal_files inner join aiki_users on user_name = username group by userid) as artists;
+
+-- DELETE USLESS tags
+
+DELETE openclipart_tags, openclipart_clipart_tags From openclipart_clipart_tags INNER JOIN openclipart_tags on tag = openclipart_tags.id WHERE openclipart_tags.name in ('public domain', 'svg', 'clip art', 'media', 'image', 'png', 'externalsource');
+
+
+
+------------------------------------
+select set_title from ocal_logs inner join set_list_titles on set_id = set_list_titles.id where created_by = 'jcubic';
+
+ocal_logs 
+
+log_type = 1 - message
+
+log_type = 2 - comment
+
+log_type = 7 - add to collection
+
+select count(*) from ocal_logs where 
+
+
+SELECT * FROM TableA
+LEFT OUTER JOIN TableB
+ON TableA.name = TableB.name
+WHERE TableB.id IS null

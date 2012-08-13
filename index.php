@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+ini_set('display_errors', 'On');
+
 require('libs/mustache.php/src/Mustache/Autoloader.php');
 Mustache_Autoloader::register();
 
@@ -44,41 +47,7 @@ $app->get("/user-detail/:username", function($username) {
     
 });
 
-function get_data() {
-    global $config;
-    $data = array(
-        "root" => $config['root'],
-        //"username" => "jcubic",
-        "librarian" => true
-    );
-    if (isset($_SESSION['username'])) {
-        $data['username'] = $_SESSION['username'];
-    }
-    return $data;
-}
 
-function render_array_files($mustache, $templates, $data) {
-    $result = array();
-    foreach ($templates as $template) {
-        $tmpl = file_get_contents("templates/$template.template");
-        $result[] = $mustache->render($tmpl, $data);
-    }
-    return $result;
-}
-
-function mysqli_get_array($query) {
-    global $mysqli;
-    $result = array();
-    $ret = $mysqli->query($query);
-    if (!$ret) {
-        die($mysqli->error);
-    }
-    while ($row = $ret->fetch_assoc()) {
-        $result[] = $row;
-    }
-    $ret->close();
-    return $result;
-}
 
 function human_date($date) {
     $timestamp = strtotime($date);
@@ -132,8 +101,207 @@ function get_time() {
     return (float)array_sum(explode(' ',microtime()));
 }
 
+function mysqli_get_array($query) {
+    global $mysqli;
+    $result = array();
+    $ret = $mysqli->query($query);
+    if (!$ret) {
+        die($mysqli->error);
+    }
+    while ($row = $ret->fetch_assoc()) {
+        $result[] = $row;
+    }
+    $ret->close();
+    return $result;
+}
+
+function mysqli_get_value($query) {
+    global $mysqli;
+    $result = array();
+    $ret = $mysqli->query($query);
+    if (!$ret) {
+        die($mysqli->error);
+    }
+    $result = $ret->fetch_row();
+    $ret->close();
+    return $result[0];
+}
+
+// obsolate
+function render_array_files($mustache, $templates, $data) {
+    $result = array();
+    foreach ($templates as $template) {
+        $tmpl = file_get_contents("templates/$template.template");
+        $result[] = $mustache->render($tmpl, $data);
+    }
+    return $result;
+}
+
+$global = array(
+    "root" => $config['root'],
+    //"username" => "jcubic",
+    "librarian" => true
+);
+if (isset($_SESSION['username'])) {
+    $global['username'] = $_SESSION['username'];
+}
+
+
+
+$indent = 0;
+
+class Template {
+    function __construct($name, $data_privider) {
+        global $indent;
+        $this->name = $name;
+        echo str_repeat(' ', $indent) . 'new ' . $this->name . "\n";
+        $this->template = file_get_contents("templates/${name}.template");
+        $this->get_data = $data_privider;
+    }
+    function render() {
+        global $global, $indent;
+        $indent++;
+        $mustache = new Mustache_Engine(array(
+            'escape' => function($val) { return $val; }
+        ));
+        if ($this->get_data === null) {
+            echo str_repeat('  ', $indent) . $this->name  . " {no data}\n";
+            return $mustache->render($this->template, $global);
+        } else {
+            $data = array();
+            // can't execute closure directly in php :(
+            $closure = $this->get_data;
+            $ret = $closure();
+            echo str_repeat('  ', $indent) . $this->name . " " . gettype($ret) .
+                '[' . count($ret) . "]\n";
+            
+            foreach ($ret as $name => $value) {
+                if ($this->name == 'most_popular_thumbs' && $name == 'content') {
+                    echo '{' . gettype($value) . "}\n";
+                }
+                echo str_repeat(' ', $indent) . $this->name . " " . $name . "\n";
+                if (gettype($value) == 'array') {
+                    echo str_repeat('  ', $indent) .  "{array}\n";
+                    $data[$name] = array();
+                    $template = false;
+                    foreach ($value as $k => $v) {
+                        if (gettype($v) == 'object' &&
+                            get_class($v) == 'Template') {
+                            echo str_repeat('  ', $indent) . $k . " /template\n";
+                            $data[$name][$k] = $v->render();
+                            $template = true;
+                        } else {
+                            echo str_repeat('  ', $indent) . $k . " /val\n";
+                            $data[$name][$k] = $v;
+                        }
+                    }
+                    if ($template) {
+                        echo str_repeat('  ', $indent) . $this->name .
+                            " $name {implode}\n";
+                        $data[$name] = implode("\n", $data[$name]);
+                    }
+                } else if (gettype($value) == 'object' &&
+                           get_class($value) == 'Template') {
+                    echo str_repeat('  ', $indent) . $this->name . " $name {template}\n";
+                    $data[$name] = $value->render();
+                    echo "string[" . strlen($data[$name]) . "]\n";
+                    echo 'template[' . strlen($this->template) . "]\n";
+                } else {
+                    echo str_repeat('  ', $indent) . "{value}\n";
+                    $data[$name] = $value;
+                }
+            }
+            $indent--;
+            if ($this->name == 'tag_cloud' && $name == 'tags') {
+                echo $this->template;
+                print_r($data);
+            }
+            return $mustache->render($this->template, array_merge($global, $data));
+        }
+    }
+}
+
+
+
+
+
 $app->get('/', function() use ($app, $mysqli) {
+    echo "<!--\n"; // comment all debug strings
+    $main = new Template('main', function() {
+        return array('content' =>
+                     array(new Template('wellcome', null),
+                           new Template('most_popular_thumbs', function() {
+                               return array(
+                                   'content' => new Template('clipart_list', function() {
+                                       global $global, $mysqli;
+                                       if (isset($global['nsfw']) && $global['nsfw']) {
+                                           $nsfw = '';
+                                       } else {
+                                           $nsfw = 'nsfw = 0';
+                                       }
+                                       if (isset($global['userid'])) {
+                                           $fav_check = $global['userid'] . ' in (SELECT'.
+                                               'user FROM openclipart_favorites WHERE op'.
+                                               'enclipart_clipart.id = clipart)';
+                                       } else {
+                                           $fav_check = '0';
+                                       }
+                                       $query = "SELECT openclipart_clipart.id, title, filename, link, created, user_name, count(DISTINCT user) as num_favorites, created, date, 0 as user_fav FROM openclipart_clipart INNER JOIN openclipart_favorites ON clipart = openclipart_clipart.id INNER JOIN openclipart_users ON openclipart_users.id = owner WHERE openclipart_clipart.id NOT IN (SELECT clipart FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag WHERE clipart = openclipart_clipart.id AND openclipart_tags.name = 'pd_issue') AND (SELECT WEEK(max(date)) FROM openclipart_favorites) = WEEK(date) AND YEAR(NOW()) = YEAR(date) GROUP BY openclipart_clipart.id ORDER BY num_favorites DESC LIMIT 8";
+                                       $ret = $mysqli->query($query);
+                                       if (!$ret) {
+                                           die($mysqli->error);
+                                       }
+                                       $clipart_list = array();
+                                       while ($row = $ret->fetch_assoc()) {
+                                           $filename_png = preg_replace("/.svg$/",
+                                                                        ".png",
+                                                                        $row['filename']);
+                                           $human_date = human_date($row['created']);
+                                           $data = array(
+                                               'filename_png' => $filename_png,
+                                               'human_date' => $human_date
+                                               //TODO: check when close this query
+                                               //'user_fav' => false
+                                           );
+                                           $clipart_list[] = array_merge($row, $data);
+                                       }
+                                       $ret->close();
+                                       return array('cliparts' => $clipart_list);
+                                   })
+                               );
+                           })
+                     ),
+                     'sidebar' => array(
+                         new Template('join', null),
+                         new Template('facebook_box', null),
+                         new Template('tag_cloud', function() {
+                             $TAG_LIMIT = 50;
+                             $query = "SELECT count(openclipart_tags.id) as tag_count  FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT 1";
+                             $max = mysqli_get_value($query);
+                             $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $TAG_LIMIT;
+                             $result = array();
+                             $ret = mysqli_get_array($query);
+                             echo '<<<<<<<' . count($ret) . ">>>>>>>>>>>\n";
+                             foreach ($ret as $row) {
+                                 $percent = round(($row['tag_count'] * 100) / $max, 0);
+                                 $result[] = array('name' => $row['name'],
+                                                 'percent' => $percent);
+                             }
+                             return array('tags' => $result);
+                         })
+                     )
+        ); //array('content'
+    }); // new Template('main'
     $start_time = get_time();
+    $result = $main->render();
+    echo "-->"; // close debug
+    echo $result;
+    // load time
+	$end_time = sprintf("%.4f", (get_time()-$start_time));
+    echo "\n <!-- Time: $end_time seconds -->";
+    
+    /*
+    
     $main_template = file_get_contents('templates/main.template');
     $mustache = new Mustache_Engine(array(
         'escape' => function($val) { return $val; }
@@ -181,8 +349,11 @@ $app->get('/', function() use ($app, $mysqli) {
     $data = array_merge($common, array(
         'content' => $mustache->render($clipart_list_template, $clipart_list)
     ));
+    
     $mst_pop_tmpl = file_get_contents("templates/most_popular_thumbs.template");
     $content .= $mustache->render($mst_pop_tmpl, $data);
+    
+    
     $data = array_merge($common, array('sidebar' => $sidebar,
                                        'content' => $content));
     echo $mustache->render($main_template, $data);
@@ -190,6 +361,7 @@ $app->get('/', function() use ($app, $mysqli) {
     // load time
 	$end_time = sprintf("%.4f", (get_time()-$start_time));
     echo "\n <!-- Time: $end_time seconds -->";
+    */
 });
 
 $app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app) {
@@ -232,5 +404,8 @@ $app->post('/rpc/:name', function($name) use ($app) {
 });
 
 $app->run();
+
+
+
 
 ?>

@@ -1,0 +1,7 @@
+<div class="tag-cloud">
+  <ul>
+    {{#tags}}
+      <li class="tag-{{percent}}"><a href="/tag/{{name}}>{{name}}</a></li>
+    {{/tags}}
+  </ul>
+</div>
