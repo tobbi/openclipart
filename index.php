@@ -221,8 +221,12 @@ class Template {
     }
 }
 
-
-
+// calulate number from $min to 100 for $max, used for tag cloud
+function size($min, $max) {
+    return function($count) use($min, $max) {
+        return round((((100-$min) * $count) / $max) + $min);
+    };
+}
 
 
 $app->get('/', function() use ($app, $mysqli) {
@@ -275,18 +279,22 @@ $app->get('/', function() use ($app, $mysqli) {
                          new Template('join', null),
                          new Template('facebook_box', null),
                          new Template('tag_cloud', function() {
-                             $TAG_LIMIT = 50;
+                             $TAG_LIMIT = 100;
                              $query = "SELECT count(openclipart_tags.id) as tag_count  FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT 1";
                              $max = mysqli_get_value($query);
                              $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $TAG_LIMIT;
                              $result = array();
                              $ret = mysqli_get_array($query);
                              echo '<<<<<<<' . count($ret) . ">>>>>>>>>>>\n";
+                             $normalize = size('20', $max);
                              foreach ($ret as $row) {
-                                 $percent = round(($row['tag_count'] * 100) / $max, 0);
-                                 $result[] = array('name' => $row['name'],
-                                                 'percent' => $percent);
+                                 //$size = round(($row['tag_count'] * 100) / $max, 0);
+                                 $result[] = array(
+                                     'name' => $row['name'],
+                                     'size' => $normalize($row['tag_count'])
+                                 );
                              }
+                             shuffle($result);
                              return array('tags' => $result);
                          })
                      )
