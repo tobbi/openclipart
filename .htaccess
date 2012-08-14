@@ -18,4 +18,4 @@ RewriteCond %{DOCUMENT_ROOT}/maintenance.html -f
 RewriteCond %{REQUEST_URI} !^/style.css
 RewriteCond %{REQUEST_URI} !^/images(.*)
 RewriteCond %{REQUEST_URI} !^/people(.*)
-RewriteRule ^.*$ /maintenance.html
+RewriteRule ^.*$ maintenance.html
