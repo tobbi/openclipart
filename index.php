@@ -11,9 +11,27 @@ require_once('libs/Template.php');
 
 $app = new Slim();
 
+class System {
+    private $user_id;
+    private $user_name;
+    private $groups;
+    function login() {
+    }
+    function isLogged() {
+        return $this->userid != null;
+    }
+    function isLibrarian() {
+        return in_array('librarian', $this->groups);
+    }
+}
 
-$app->get('/login', function() use ($app) {
-
+$app->notFound(function () use ($app) {
+    $response = $app->response();
+    $response['Content-Type'] = 'text/html';
+    $main = new Template('main', function() {
+        return array('content' => new Template('error_404', null));
+    });
+    echo $main->render();
 });
 
 $app->post('/login', function() use ($app) {
@@ -91,7 +109,6 @@ $app->get('/', function() {
                              $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $TAG_LIMIT;
                              $result = array();
                              $ret = mysqli_get_array($query);
-                             echo '<<<<<<<' . count($ret) . ">>>>>>>>>>>\n";
                              $normalize = size('20', $max);
                              foreach ($ret as $row) {
                                  //$size = round(($row['tag_count'] * 100) / $max, 0);
@@ -115,6 +132,9 @@ $app->get('/', function() {
     echo "\n <!-- Time: $end_time seconds -->";
 });
 
+
+
+
 $app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app) {
     $width = intval($w);
     $response = $app->response();
@@ -122,7 +142,14 @@ $app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app)
     $root_dir = dirname(__FILE__);
     $png = "$root_dir/people/$user/${width}px-$file";
     $svg = "$root_dir/people/$user/" . preg_replace("/.png$/", '.svg', $file);
-    if (file_exists($png)) {
+    if ($width > 3840) {
+        $response->status(400);
+        $response['Content-Type'] = 'text/html';
+        // TODO: error template
+        echo "Resolution couldn't be higher then 3840px! Please download SVG and produce such huge bitmap locally.";
+    } else if (!file_exists($svg)) {
+        $app->notFound();
+    } else if (file_exists($png)) {
         echo file_get_contents($png);
     } else {
         exec("rsvg --width $width $svg $png");

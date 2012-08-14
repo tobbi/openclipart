@@ -9,7 +9,7 @@
     <link rel="alternate" type="application/rss+xml" title="Top 10 Cliparts" href="{{root}}/rss/top.xml" />
     <link rel="search" type="application/opensearchdescription+xml" title="Open Clipart Library" href="{{root}}/openclipart.xml" />
     <meta name="google-site-verification" content="_8noWmEGgMpGsj7Gb6cFfOcGnr9Cav0mr_8uPyfb97A" />
-    <link rel="stylesheet" type="text/css"  href="style.css"/>
+    <link rel="stylesheet" type="text/css"  href="/style.css"/>
 </head>
 <body>
     <!--debug: start main(14)-->
@@ -72,8 +72,10 @@
             <ul class="clearfix" id="mainnav">
                 <li><a title="Openclipart Artists" href="{{root}}/artists">Artists</a></li>
                 <li><a title="Clipart Collections" href="{{root}}/collections">Collections</a></li>
+                <!--
                 <li><a title="Clipart Showcase" href="{{root}}/showcase">Showcase</a></li>
                 <li><a title="Request Page" href="{{root}}/request">Request</a></li>
+                -->
                 <li><a title="How can you help our project" href="{{root}}/participate">Participate</a></li>
                 <li><a title="About Open Clipart Library" href="{{root}}/about">About</a></li>
                 <li class="launchpad bugs"><a title="Got API?" href="{{root}}/docs/api">Need API?</a></li>
