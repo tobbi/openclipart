@@ -139,16 +139,17 @@ $app->get('/', function() {
                                  );
                              }
                              */
-                             $rows = $app->db->get_array($query)
+                             $rows = $app->db->get_array($query);
                              shuffle($rows);
-                             $norm = size('20', $max);
+                             $normalize = size('20', $max);
                              return array('tags' =>
-                                          array_map($rows, function($row) use ($norm) {
+                                          array_map(function($row) use ($normalize) {
                                               return array(
                                                   'name' => $row['name'],
-                                                  'size' => $norm($row['tag_count']);
+                                                  'size' => $normalize($row['tag_count'])
                                               );
-                                          });
+                                          }, $rows)
+                             );
                          }),
                          new Template('top_artists_last_month', function() {
                              global $app;
