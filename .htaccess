@@ -12,3 +12,10 @@ RewriteRule ^ index.php [QSA,L]
 # Prevent to access database credentials
 RewriteCond %{REQUEST_FILENAME} config.json
 RewriteRule .* - [F]
+
+# Display maintenance page if we're doing some work on the site
+RewriteCond %{DOCUMENT_ROOT}/maintenance.html -f
+RewriteCond %{REQUEST_URI} !^/style.css
+RewriteCond %{REQUEST_URI} !^/images(.*)
+RewriteCond %{REQUEST_URI} !^/people(.*)
+RewriteRule ^.*$ /maintenance.html
