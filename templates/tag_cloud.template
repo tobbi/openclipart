@@ -1,7 +1,9 @@
-<div class="tag-cloud">
+<div class="tag-cloud sidebox">
+  <div class="boxtop"></div>
   <ul>
     {{#tags}}
       <li class="tag-{{size}}"><a href="/tag/{{name}}">{{name}}</a></li>
     {{/tags}}
   </ul>
+  <div class="boxbottom"></div>
 </div>

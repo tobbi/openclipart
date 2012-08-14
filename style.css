@@ -1197,9 +1197,16 @@ ul.img-actions {padding-top: 5px; padding-bottom: 12px;}
     font-weight: bold;
 }
 /******** TAG CLOUD *********/
+.tag-cloud .boxtop {
+    margin-bottom: 0;
+}
+
 .tag-cloud {
     font-size: 50px;
     line-height: 38px;
+}
+.tag-cloud ul {
+    padding: 0 0 0 15px;
 }
 .tag-cloud li {
     float: left;
