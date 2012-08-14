@@ -3,27 +3,23 @@
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 ini_set('display_errors', 'On');
 
-require_once('libs/Slim/Slim/Slim.php');
-require_once('bootstrap.php');
-
 require_once('libs/utils.php');
 require_once('libs/Template.php');
+require_once('libs/System.php');
 
-$app = new Slim();
 
-class System {
-    private $user_id;
-    private $user_name;
-    private $groups;
-    function login() {
-    }
-    function isLogged() {
-        return $this->userid != null;
-    }
-    function isLibrarian() {
-        return in_array('librarian', $this->groups);
-    }
-}
+$app = new System(function() {
+    require('config.php');
+    return array(
+        'root' => 'http://staging.openclipart.org',
+        'tag_limit' => 100,
+        'top_artist_last_month_limit' => 10,
+        'db_user' => $config['db_user'],
+        'db_host' => $config['db_host'],
+        'db_pass' => $config['db_pass'],
+        'db_name' => $config['db_name']
+    );
+});
 
 $app->notFound(function () use ($app) {
     $response = $app->response();
@@ -44,43 +40,41 @@ $app->get("/register", function() use ($app) {
 
 });
 
-$app->get("/detail/:id/:link", function($id, $link) {
+$app->get("/detail/:id/:link", function($id, $link) use ($app) {
 
 });
 
-$app->get("/user-detail/:username", function($username) {
+$app->get("/user-detail/:username", function($username) use ($app) {
 
 });
 
 
 $app->get('/', function() {
-    echo "<!--\n"; // comment all debug strings
+
     $main = new Template('main', function() {
         return array('content' =>
                      array(new Template('wellcome', null),
                            new Template('most_popular_thumbs', function() {
                                return array(
                                    'content' => new Template('clipart_list', function() {
-                                       global $global, $mysqli;
-                                       if (isset($global['nsfw']) && $global['nsfw']) {
+                                       global $app;
+                                       if ($app->config->exists('nsfw') &&
+                                           $app->config->nsfw) {
                                            $nsfw = '';
                                        } else {
                                            $nsfw = 'nsfw = 0';
                                        }
-                                       if (isset($global['userid'])) {
-                                           $fav_check = $global['userid'] . ' in (SELECT'.
-                                               'user FROM openclipart_favorites WHERE op'.
-                                               'enclipart_clipart.id = clipart)';
+                                       if ($app->is_logged()) {
+                                           $fav_check = $app->get_user_id() . ' in '.
+                                               '(SELECT user FROM openclipart_favorites'.
+                                               ' WHERE openclipart_clipart.id = clipart)';
                                        } else {
                                            $fav_check = '0';
                                        }
                                        $query = "SELECT openclipart_clipart.id, title, filename, link, created, user_name, count(DISTINCT user) as num_favorites, created, date, 0 as user_fav FROM openclipart_clipart INNER JOIN openclipart_favorites ON clipart = openclipart_clipart.id INNER JOIN openclipart_users ON openclipart_users.id = owner WHERE openclipart_clipart.id NOT IN (SELECT clipart FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag WHERE clipart = openclipart_clipart.id AND openclipart_tags.name = 'pd_issue') AND (SELECT WEEK(max(date)) FROM openclipart_favorites) = WEEK(date) AND YEAR(NOW()) = YEAR(date) GROUP BY openclipart_clipart.id ORDER BY num_favorites DESC LIMIT 8";
-                                       $ret = $mysqli->query($query);
-                                       if (!$ret) {
-                                           die($mysqli->error);
-                                       }
+
                                        $clipart_list = array();
-                                       while ($row = $ret->fetch_assoc()) {
+                                       foreach ($app->db->get_array($query) as $row) {
                                            $filename_png = preg_replace("/.svg$/",
                                                                         ".png",
                                                                         $row['filename']);
@@ -93,7 +87,6 @@ $app->get('/', function() {
                                            );
                                            $clipart_list[] = array_merge($row, $data);
                                        }
-                                       $ret->close();
                                        return array('cliparts' => $clipart_list);
                                    })
                                );
@@ -103,14 +96,13 @@ $app->get('/', function() {
                          new Template('join', null),
                          new Template('facebook_box', null),
                          new Template('tag_cloud', function() {
-                             $TAG_LIMIT = 100;
+                             global $app;
                              $query = "SELECT count(openclipart_tags.id) as tag_count  FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT 1";
-                             $max = mysqli_get_value($query);
-                             $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $TAG_LIMIT;
+                             $max = $app->db->get_value($query);
+                             $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $app->config->tag_limit;
                              $result = array();
-                             $ret = mysqli_get_array($query);
                              $normalize = size('20', $max);
-                             foreach ($ret as $row) {
+                             foreach ($app->db->get_array($query) as $row) {
                                  //$size = round(($row['tag_count'] * 100) / $max, 0);
                                  $result[] = array(
                                      'name' => $row['name'],
@@ -119,13 +111,17 @@ $app->get('/', function() {
                              }
                              shuffle($result);
                              return array('tags' => $result);
+                         }),
+                         new Template('top_artists_last_month', function() {
+                             global $app;
+                             $query = "SELECT full_name, user_name, count(filename) AS num_uploads FROM openclipart_clipart INNER JOIN openclipart_users ON owner = openclipart_users.id  WHERE date_format(created, '%Y-%c') = date_format(now(), '%Y-%c') GROUP BY openclipart_users.id ORDER BY num_uploads DESC LIMIT " . $app->config->top_artist_last_month_limit;
+                             return array('artists' => $app->db->get_array($query));
                          })
                      )
         ); //array('content'
     }); // new Template('main'
     $start_time = get_time();
     $result = $main->render();
-    echo "-->"; // close debug
     echo $result;
     // load time
 	$end_time = sprintf("%.4f", (get_time()-$start_time));
@@ -135,7 +131,8 @@ $app->get('/', function() {
 
 
 
-$app->get('/image/:width/:user/:filename', function($w, $user, $file) use ($app) {
+$app->get('/image/:width/:user/:filename', function($w, $user, $file) {
+    global $app;
     $width = intval($w);
     $response = $app->response();
     $response['Content-Type'] = 'image/png';
