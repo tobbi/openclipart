@@ -1,4 +1,24 @@
 <?php
+/**
+ *  This file is part of Open Clipart Library <http://openclipart.org>
+ *
+ *  Open Clipart Library is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Open Clipart Library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with Open Clipart Library; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ *  author: Jakub Jankiewicz <http://jcubic.pl>
+ */
+
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 ini_set('display_errors', 'On');
@@ -7,18 +27,23 @@ require_once('libs/utils.php');
 require_once('libs/Template.php');
 require_once('libs/System.php');
 
+/* TODO: logs (using slim) and cache in Template::render
+ *
+ *
+ *
+ */
 
 $app = new System(function() {
-    require('config.php');
-    return array(
+    /*
+     *  System config need those variables
+     *  db_user, db_host, db_pass, db_name
+     */
+    $config = get_object_vars(json_decode(file_get_contents('config.json')));
+    return array_merge($config, array(
         'root' => 'http://staging.openclipart.org',
         'tag_limit' => 100,
-        'top_artist_last_month_limit' => 10,
-        'db_user' => $config['db_user'],
-        'db_host' => $config['db_host'],
-        'db_pass' => $config['db_pass'],
-        'db_name' => $config['db_name']
-    );
+        'top_artist_last_month_limit' => 10
+    ));
 });
 
 $app->notFound(function () use ($app) {
@@ -28,6 +53,10 @@ $app->notFound(function () use ($app) {
         return array('content' => new Template('error_404', null));
     });
     echo $main->render();
+});
+
+$app->error(function(Exception $e) {
+    echo 'error';
 });
 
 $app->post('/login', function() use ($app) {
@@ -50,7 +79,6 @@ $app->get("/user-detail/:username", function($username) use ($app) {
 
 
 $app->get('/', function() {
-
     $main = new Template('main', function() {
         return array('content' =>
                      array(new Template('wellcome', null),
@@ -101,7 +129,8 @@ $app->get('/', function() {
                              $max = $app->db->get_value($query);
                              $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $app->config->tag_limit;
                              $result = array();
-                             $normalize = size('20', $max);
+
+                             /*
                              foreach ($app->db->get_array($query) as $row) {
                                  //$size = round(($row['tag_count'] * 100) / $max, 0);
                                  $result[] = array(
@@ -109,8 +138,17 @@ $app->get('/', function() {
                                      'size' => $normalize($row['tag_count'])
                                  );
                              }
-                             shuffle($result);
-                             return array('tags' => $result);
+                             */
+                             $rows = $app->db->get_array($query)
+                             shuffle($rows);
+                             $norm = size('20', $max);
+                             return array('tags' =>
+                                          array_map($rows, function($row) use ($norm) {
+                                              return array(
+                                                  'name' => $row['name'],
+                                                  'size' => $norm($row['tag_count']);
+                                              );
+                                          });
                          }),
                          new Template('top_artists_last_month', function() {
                              global $app;

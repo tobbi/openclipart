@@ -8,3 +8,7 @@ RewriteEngine On
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [QSA,L]
+
+# Prevent to access database credentials
+RewriteCond %{REQUEST_FILENAME} config.json
+RewriteRule .* - [F]
