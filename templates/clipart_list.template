@@ -8,8 +8,7 @@
 	<h4>
 	  <a href="/detail/{{id}}/{{link}}">{{upload_name}}</a>
 	</h4>
-	<p>by <a href="/user-detail/{{user_name}}">{{user_name}}</a><br />
-	<!-- <php $aiki->web2date->parseweb2date( ((upload_date)) ); php> -->
+	<p>by <a href="/user/{{user_name}}">{{user_name}}</a><br />
 	{{human_date}}
     </p>
     <p class="thumbnail_info_downloaded"><a class="download_hook" href="/people/{{user_name}}/{{filename}}"><img src="/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{file_num_download}}</p>

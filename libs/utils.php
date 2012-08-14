@@ -58,29 +58,3 @@ function size($min, $max) {
         return round((((100-$min) * $count) / $max) + $min);
     };
 }
-
-function mysqli_get_array($query) {
-    global $mysqli;
-    $result = array();
-    $ret = $mysqli->query($query);
-    if (!$ret) {
-        die($mysqli->error);
-    }
-    while ($row = $ret->fetch_assoc()) {
-        $result[] = $row;
-    }
-    $ret->close();
-    return $result;
-}
-
-function mysqli_get_value($query) {
-    global $mysqli;
-    $result = array();
-    $ret = $mysqli->query($query);
-    if (!$ret) {
-        die($mysqli->error);
-    }
-    $result = $ret->fetch_row();
-    $ret->close();
-    return $result[0];
-}

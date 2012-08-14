@@ -1197,127 +1197,141 @@ ul.img-actions {padding-top: 5px; padding-bottom: 12px;}
     font-weight: bold;
 }
 /******** TAG CLOUD *********/
-.tag-cloud .boxtop {
+#tag-cloud .boxtop {
     margin-bottom: 0;
 }
 
-.tag-cloud {
+#tag-cloud {
     font-size: 50px;
     line-height: 38px;
 }
-.tag-cloud ul {
+#tag-cloud ul {
     padding: 0 0 0 15px;
 }
-.tag-cloud li {
+#tag-cloud li {
     float: left;
     margin-right: 10px;
     line-height: 100%;
 }
-.tag-cloud li a {
+#tag-cloud li a {
     outline: none;
     text-decoration: none;
     color: #CE5C00;
 }
-.tag-cloud li a:hover {
+#tag-cloud li a:hover {
     text-decoration: underline;
 }
-.tag-cloud .tag-1,
-.tag-cloud .tag-2,
-.tag-cloud .tag-3,
-.tag-cloud .tag-4,
-.tag-cloud .tag-5,
-.tag-cloud .tag-6,
-.tag-cloud .tag-7,
-.tag-cloud .tag-8,
-.tag-cloud .tag-9,
-.tag-cloud .tag-10,
-.tag-cloud .tag-11,
-.tag-cloud .tag-12,
-.tag-cloud .tag-13,
-.tag-cloud .tag-14,
-.tag-cloud .tag-15,
-.tag-cloud .tag-16,
-.tag-cloud .tag-17,
-.tag-cloud .tag-18,
-.tag-cloud .tag-19,
-.tag-cloud .tag-20 { font-size: 20%; }
-.tag-cloud .tag-21 { font-size: 21%; }
-.tag-cloud .tag-22 { font-size: 22%; }
-.tag-cloud .tag-23 { font-size: 23%; }
-.tag-cloud .tag-24 { font-size: 24%; }
-.tag-cloud .tag-25 { font-size: 25%; }
-.tag-cloud .tag-26 { font-size: 26%; }
-.tag-cloud .tag-27 { font-size: 27%; }
-.tag-cloud .tag-28 { font-size: 28%; }
-.tag-cloud .tag-29 { font-size: 29%; }
-.tag-cloud .tag-30 { font-size: 30%; }
-.tag-cloud .tag-31 { font-size: 31%; }
-.tag-cloud .tag-32 { font-size: 32%; }
-.tag-cloud .tag-33 { font-size: 33%; }
-.tag-cloud .tag-34 { font-size: 34%; }
-.tag-cloud .tag-35 { font-size: 35%; }
-.tag-cloud .tag-36 { font-size: 36%; }
-.tag-cloud .tag-37 { font-size: 37%; }
-.tag-cloud .tag-38 { font-size: 38%; }
-.tag-cloud .tag-39 { font-size: 39%; }
-.tag-cloud .tag-40 { font-size: 40%; }
-.tag-cloud .tag-41 { font-size: 41%; }
-.tag-cloud .tag-42 { font-size: 42%; }
-.tag-cloud .tag-43 { font-size: 43%; }
-.tag-cloud .tag-44 { font-size: 44%; }
-.tag-cloud .tag-45 { font-size: 45%; }
-.tag-cloud .tag-46 { font-size: 46%; }
-.tag-cloud .tag-47 { font-size: 47%; }
-.tag-cloud .tag-48 { font-size: 48%; }
-.tag-cloud .tag-49 { font-size: 49%; }
-.tag-cloud .tag-50 { font-size: 50%; }
-.tag-cloud .tag-51 { font-size: 51%; }
-.tag-cloud .tag-52 { font-size: 52%; }
-.tag-cloud .tag-53 { font-size: 53%; }
-.tag-cloud .tag-54 { font-size: 54%; }
-.tag-cloud .tag-55 { font-size: 55%; }
-.tag-cloud .tag-56 { font-size: 56%; }
-.tag-cloud .tag-57 { font-size: 57%; }
-.tag-cloud .tag-58 { font-size: 58%; }
-.tag-cloud .tag-59 { font-size: 59%; }
-.tag-cloud .tag-60 { font-size: 60%; }
-.tag-cloud .tag-61 { font-size: 61%; }
-.tag-cloud .tag-62 { font-size: 62%; }
-.tag-cloud .tag-63 { font-size: 63%; }
-.tag-cloud .tag-64 { font-size: 64%; }
-.tag-cloud .tag-65 { font-size: 65%; }
-.tag-cloud .tag-66 { font-size: 66%; }
-.tag-cloud .tag-67 { font-size: 67%; }
-.tag-cloud .tag-68 { font-size: 68%; }
-.tag-cloud .tag-69 { font-size: 69%; }
-.tag-cloud .tag-70 { font-size: 70%; }
-.tag-cloud .tag-71 { font-size: 71%; }
-.tag-cloud .tag-72 { font-size: 72%; }
-.tag-cloud .tag-73 { font-size: 73%; }
-.tag-cloud .tag-74 { font-size: 74%; }
-.tag-cloud .tag-75 { font-size: 75%; }
-.tag-cloud .tag-76 { font-size: 76%; }
-.tag-cloud .tag-77 { font-size: 77%; }
-.tag-cloud .tag-78 { font-size: 78%; }
-.tag-cloud .tag-79 { font-size: 79%; }
-.tag-cloud .tag-80 { font-size: 80%; }
-.tag-cloud .tag-81 { font-size: 81%; }
-.tag-cloud .tag-82 { font-size: 82%; }
-.tag-cloud .tag-83 { font-size: 83%; }
-.tag-cloud .tag-84 { font-size: 84%; }
-.tag-cloud .tag-85 { font-size: 85%; }
-.tag-cloud .tag-86 { font-size: 86%; }
-.tag-cloud .tag-87 { font-size: 87%; }
-.tag-cloud .tag-88 { font-size: 88%; }
-.tag-cloud .tag-89 { font-size: 89%; }
-.tag-cloud .tag-90 { font-size: 90%; }
-.tag-cloud .tag-91 { font-size: 91%; }
-.tag-cloud .tag-92 { font-size: 92%; }
-.tag-cloud .tag-93 { font-size: 93%; }
-.tag-cloud .tag-94 { font-size: 94%; }
-.tag-cloud .tag-95 { font-size: 95%; }
-.tag-cloud .tag-96 { font-size: 96%; }
-.tag-cloud .tag-97 { font-size: 97%; }
-.tag-cloud .tag-98 { font-size: 98%; }
-.tag-cloud .tag-99 { font-size: 99%; }
-.tag-cloud .tag-100 { font-size: 100%; }
+#sidebar-r #tag-cloud .wrapper {
+    padding: 10px;
+}
+#tag-cloud .tag-1,
+#tag-cloud .tag-2,
+#tag-cloud .tag-3,
+#tag-cloud .tag-4,
+#tag-cloud .tag-5,
+#tag-cloud .tag-6,
+#tag-cloud .tag-7,
+#tag-cloud .tag-8,
+#tag-cloud .tag-9,
+#tag-cloud .tag-10,
+#tag-cloud .tag-11,
+#tag-cloud .tag-12,
+#tag-cloud .tag-13,
+#tag-cloud .tag-14,
+#tag-cloud .tag-15,
+#tag-cloud .tag-16,
+#tag-cloud .tag-17,
+#tag-cloud .tag-18,
+#tag-cloud .tag-19,
+#tag-cloud .tag-20 { font-size: 20%; }
+#tag-cloud .tag-21 { font-size: 21%; }
+#tag-cloud .tag-22 { font-size: 22%; }
+#tag-cloud .tag-23 { font-size: 23%; }
+#tag-cloud .tag-24 { font-size: 24%; }
+#tag-cloud .tag-25 { font-size: 25%; }
+#tag-cloud .tag-26 { font-size: 26%; }
+#tag-cloud .tag-27 { font-size: 27%; }
+#tag-cloud .tag-28 { font-size: 28%; }
+#tag-cloud .tag-29 { font-size: 29%; }
+#tag-cloud .tag-30 { font-size: 30%; }
+#tag-cloud .tag-31 { font-size: 31%; }
+#tag-cloud .tag-32 { font-size: 32%; }
+#tag-cloud .tag-33 { font-size: 33%; }
+#tag-cloud .tag-34 { font-size: 34%; }
+#tag-cloud .tag-35 { font-size: 35%; }
+#tag-cloud .tag-36 { font-size: 36%; }
+#tag-cloud .tag-37 { font-size: 37%; }
+#tag-cloud .tag-38 { font-size: 38%; }
+#tag-cloud .tag-39 { font-size: 39%; }
+#tag-cloud .tag-40 { font-size: 40%; }
+#tag-cloud .tag-41 { font-size: 41%; }
+#tag-cloud .tag-42 { font-size: 42%; }
+#tag-cloud .tag-43 { font-size: 43%; }
+#tag-cloud .tag-44 { font-size: 44%; }
+#tag-cloud .tag-45 { font-size: 45%; }
+#tag-cloud .tag-46 { font-size: 46%; }
+#tag-cloud .tag-47 { font-size: 47%; }
+#tag-cloud .tag-48 { font-size: 48%; }
+#tag-cloud .tag-49 { font-size: 49%; }
+#tag-cloud .tag-50 { font-size: 50%; }
+#tag-cloud .tag-51 { font-size: 51%; }
+#tag-cloud .tag-52 { font-size: 52%; }
+#tag-cloud .tag-53 { font-size: 53%; }
+#tag-cloud .tag-54 { font-size: 54%; }
+#tag-cloud .tag-55 { font-size: 55%; }
+#tag-cloud .tag-56 { font-size: 56%; }
+#tag-cloud .tag-57 { font-size: 57%; }
+#tag-cloud .tag-58 { font-size: 58%; }
+#tag-cloud .tag-59 { font-size: 59%; }
+#tag-cloud .tag-60 { font-size: 60%; }
+#tag-cloud .tag-61 { font-size: 61%; }
+#tag-cloud .tag-62 { font-size: 62%; }
+#tag-cloud .tag-63 { font-size: 63%; }
+#tag-cloud .tag-64 { font-size: 64%; }
+#tag-cloud .tag-65 { font-size: 65%; }
+#tag-cloud .tag-66 { font-size: 66%; }
+#tag-cloud .tag-67 { font-size: 67%; }
+#tag-cloud .tag-68 { font-size: 68%; }
+#tag-cloud .tag-69 { font-size: 69%; }
+#tag-cloud .tag-70 { font-size: 70%; }
+#tag-cloud .tag-71 { font-size: 71%; }
+#tag-cloud .tag-72 { font-size: 72%; }
+#tag-cloud .tag-73 { font-size: 73%; }
+#tag-cloud .tag-74 { font-size: 74%; }
+#tag-cloud .tag-75 { font-size: 75%; }
+#tag-cloud .tag-76 { font-size: 76%; }
+#tag-cloud .tag-77 { font-size: 77%; }
+#tag-cloud .tag-78 { font-size: 78%; }
+#tag-cloud .tag-79 { font-size: 79%; }
+#tag-cloud .tag-80 { font-size: 80%; }
+#tag-cloud .tag-81 { font-size: 81%; }
+#tag-cloud .tag-82 { font-size: 82%; }
+#tag-cloud .tag-83 { font-size: 83%; }
+#tag-cloud .tag-84 { font-size: 84%; }
+#tag-cloud .tag-85 { font-size: 85%; }
+#tag-cloud .tag-86 { font-size: 86%; }
+#tag-cloud .tag-87 { font-size: 87%; }
+#tag-cloud .tag-88 { font-size: 88%; }
+#tag-cloud .tag-89 { font-size: 89%; }
+#tag-cloud .tag-90 { font-size: 90%; }
+#tag-cloud .tag-91 { font-size: 91%; }
+#tag-cloud .tag-92 { font-size: 92%; }
+#tag-cloud .tag-93 { font-size: 93%; }
+#tag-cloud .tag-94 { font-size: 94%; }
+#tag-cloud .tag-95 { font-size: 95%; }
+#tag-cloud .tag-96 { font-size: 96%; }
+#tag-cloud .tag-97 { font-size: 97%; }
+#tag-cloud .tag-98 { font-size: 98%; }
+#tag-cloud .tag-99 { font-size: 99%; }
+#tag-cloud .tag-100 { font-size: 100%; }
+/**** TOP ARTIST *****/
+#last-month-top-artist li {
+    clear: both;
+}
+#last-month-top-artist ul {
+    margin-right: 10px;
+}
+#last-month-top-artist .left, #last-month-top-artist .right {
+    width: auto;
+    display: inline;
+}

@@ -3,9 +3,15 @@
 require_once('mustache.php/src/Mustache/Autoloader.php');
 Mustache_Autoloader::register();
 
-$indent = 0;
+$indent = 0; // debug
 
 define('TEMPLATE_DEBUG', false);
+
+class TemplateException extends Exception {
+    function __construct($msg) {
+        Exception::__construct($msg, 101);
+    }
+}
 
 class Template {
     function __construct($name, $data_privider) {
@@ -14,31 +20,46 @@ class Template {
         if (TEMPLATE_DEBUG) {
             echo str_repeat(' ', $indent) . 'new ' . $this->name . "\n";
         }
-        $this->template = file_get_contents("templates/${name}.template");
-        $this->get_data = $data_privider;
+        $filename = "templates/${name}.template";
+        if (!file_exists($filename)) {
+            throw new TemplateException("file '$filename' not found");
+        }
+        $this->template = file_get_contents($filename);
+        $this->user_data = $data_privider;
     }
     function render() {
-        global $global, $indent;
+        global $app, $indent;
         $indent++;
         $mustache = new Mustache_Engine(array(
             'escape' => function($val) { return $val; }
         ));
-        if ($this->get_data === null) {
+        if ($this->user_data === null) {
             if (TEMPLATE_DEBUG) {
                 echo str_repeat('  ', $indent) . $this->name .
                     " {no data}\n";
             }
-            return $mustache->render($this->template, $global);
+            return $mustache->render($this->template,
+                                     $app->config->get_data());
         } else {
-            $data = array();
-            // can't execute closure directly in php :(
-            $closure = $this->get_data;
-            $ret = $closure();
+            $user_data = $this->user_data;
+            if (is_callable($this->user_data)) {
+                // can't execute closure directly in php :(
+                $closure = $this->user_data;
+                $user_data = $closure();
+                if (!$user_data) {
+                    $msg = "Closure for '" . $this->name .
+                        "returned no data";
+                    throw new TemplateException("Closure for '" .
+                                                $this->name .
+                                                "returned no data");
+                }
+            }
             if (TEMPLATE_DEBUG) {
                 echo str_repeat('  ', $indent) . $this->name . " " . gettype($ret) .
                     '[' . count($ret) . "]\n";
             }
-            foreach ($ret as $name => $value) {
+            $data = array();
+            foreach ($user_data as $name => $value) {
                 if (TEMPLATE_DEBUG) {
                     if ($this->name == 'most_popular_thumbs' &&
                         $name == 'content') {
@@ -102,7 +123,9 @@ class Template {
                     print_r($data);
                 }
             }
-            return $mustache->render($this->template, array_merge($global, $data));
+            return $mustache->render($this->template,
+                                     array_merge($app->config->get_data(),
+                                                 $data));
         }
     }
 }
