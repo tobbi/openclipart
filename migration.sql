@@ -163,3 +163,9 @@ INSERT INTO openclipart_log_meta SELECT id, 5, set_content_id FROM ocal_logs WHE
 INSERT INTO openclipart_logs SELECT id, (SELECT min(userid) FROM aiki_users WHERE username = created_by), created_at, 9 FROM ocal_logs WHERE log_type = 7;
 
 INSERT INTO openclipart_log_meta SELECT id, 2, image_id FROM ocal_logs WHERE log_type = 7;
+
+-- NEWS
+
+CREATE TABLE openclipart_news(id INTEGER NOT NULL auto_increment, link VARCHAR(255) DEFAULT NULL, date DATETIME, user INTEGER DEFAULT NULL, content TEXT, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
+
+INSERT INTO openclipart_news(link, date, content) SELECT link, pubDate, content FROM apps_planet_posts;
