@@ -1,10 +1,10 @@
 # Guide to the code
 
-libs/System.php file content the main class, it's abstraction over Slim framework.
+libs/System.php file contain the main class, it's abstraction over Slim framework.
 The class forward every non existed method to instance of Slim class. System use
 instance of Database class (from libs/Database.php), in $db property, that forward
 everything to mysqli connection, it throw DatabaseException. System class use also
-ArrayObjectFacade as $config property, that change array to readonly object.
+ArrayObjectFacade as $config property, that change array to read only object.
 config is passed to constructor (It can be array or function that create an array
 check System initialization in index.php file) System constructor need those
 values db_host, db_user, db_pass, db_name and pass it to Database object.
