@@ -1,0 +1,17 @@
+# Guide to the code
+
+libs/System.php file content the main class, it's abstraction over Slim framework.
+The class forward every non existed method to instance of Slim class. System use
+instance of Database class (from libs/Database.php), in $db property, that forward
+everything to mysqli connection, it throw DatabaseException. System class use also
+ArrayObjectFacade as $config property, that change array to readonly object.
+config is passed to constructor (It can be array or function that create an array
+check System initialization in index.php file) System constructor need those
+values db_host, db_user, db_pass, db_name and pass it to Database object.
+
+index.php file contain Slim routes (forwarded from System object), pages that display
+html use Template class (libs/Template.php) that have one method - render, which
+render a template using Mustache Engine. Constructor of the Template class accept 2
+arguments name of the template (taken from template directory) and an array or the
+function that return an array. The array need to be associative, keys of that array
+will be inserted into Mustache template.
