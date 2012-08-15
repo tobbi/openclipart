@@ -11,7 +11,8 @@ RewriteRule ^ index.php [QSA,L]
 
 # Prevent to access database credentials
 RewriteCond %{REQUEST_FILENAME} config.json
-RewriteCond %{REQUEST_FILENAME} recreate_tags.php # accessed only from command line
+# accessed only from command line
+RewriteCond %{REQUEST_FILENAME} recreate_tags.php
 RewriteRule .* - [F]
 
 # Display maintenance page if we're doing some work on the site
