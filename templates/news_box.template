@@ -1,0 +1,8 @@
+<div id="latest-news-box" class="sidebox">
+  <h3><a href="/news">Latest News</a></h3>
+  <ul class="wrapper">
+    {{#news}}
+      <li><a href="{{link}}">{{title}}</a></li>
+    {{/news}}
+  </ul>
+</div>

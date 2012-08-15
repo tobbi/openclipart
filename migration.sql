@@ -110,9 +110,9 @@ INSERT INTO openclipart_contests(user, name, title, content, create_date, deadli
 
 -- COLLECTIONS
 
-CREATE TABLE openclipart_collections(id INTEGER NOT NULL auto_increment, name VARCHAR(255) UNIQUE, title VARCHAR(255), date DATETIME, user INTEGER NOT NULL, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
+CREATE TABLE openclipart_collections(id INTEGER NOT NULL auto_increment, name VARCHAR(255) DEFAULT NULL, title VARCHAR(255), date DATETIME, user INTEGER NOT NULL, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
 
-INSERT INTO openclipart_collections SELECT id, set_title, date_added, (SELECT min(userid) FROM aiki_users WHERE aiki_users.username = set_list_titles.username) FROM set_list_titles;
+INSERT INTO openclipart_collections SELECT id, '', set_title, date_added, (SELECT min(userid) FROM aiki_users WHERE aiki_users.username = set_list_titles.username) FROM set_list_titles;
 
 CREATE TABLE openclipart_collection_clipart(clipart INTEGER NOT NULL, collection INTEGER NOT NULL, PRIMARY KEY(clipart, collection), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id), FOREIGN KEY(collection) REFERENCES openclipart_collections(id));
 
@@ -166,6 +166,6 @@ INSERT INTO openclipart_log_meta SELECT id, 2, image_id FROM ocal_logs WHERE log
 
 -- NEWS
 
-CREATE TABLE openclipart_news(id INTEGER NOT NULL auto_increment, link VARCHAR(255) DEFAULT NULL, date DATETIME, user INTEGER DEFAULT NULL, content TEXT, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
+CREATE TABLE openclipart_news(id INTEGER NOT NULL auto_increment, link VARCHAR(255) DEFAULT NULL, title VARCHAR(255), date DATETIME, user INTEGER DEFAULT NULL, content TEXT, PRIMARY KEY(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
 
-INSERT INTO openclipart_news(link, date, content) SELECT link, pubDate, content FROM apps_planet_posts;
+INSERT INTO openclipart_news(link, title, date, content) SELECT link, title, pubDate, content FROM apps_planet_posts;

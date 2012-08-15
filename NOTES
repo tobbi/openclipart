@@ -8,6 +8,8 @@ select count(*) from (select userid, count(ocal_files.id) from ocal_files inner 
 
 DELETE openclipart_tags, openclipart_clipart_tags From openclipart_clipart_tags INNER JOIN openclipart_tags on tag = openclipart_tags.id WHERE openclipart_tags.name in ('public domain', 'svg', 'clip art', 'media', 'image', 'png', 'externalsource');
 
+-- full query from most_popular (content) -> clipart_list
+$query = "SELECT openclipart_clipart.id, title, filename, link, created, user_name, count(DISTINCT user) as num_favorites, created, date, 0 as user_fav FROM openclipart_clipart INNER JOIN openclipart_favorites ON clipart = openclipart_clipart.id INNER JOIN openclipart_users ON openclipart_users.id = owner WHERE openclipart_clipart.id NOT IN (SELECT clipart FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag WHERE clipart = openclipart_clipart.id AND openclipart_tags.name = 'pd_issue') AND (SELECT WEEK(max(date)) FROM openclipart_favorites) = WEEK(date) AND YEAR(NOW()) = YEAR(date) GROUP BY openclipart_clipart.id ORDER BY num_favorites DESC LIMIT " . $app->config->home_page_thumbs_limit;
 
 
 ------------------------------------

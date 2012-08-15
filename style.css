@@ -367,18 +367,20 @@ html[xmlns] .clearfix { display: block;}
     font-weight: bold;
 }
 #stats div dd { text-align: right; color: #b2b3b0; }
+.recent-img-d { float: left; width: 570px;}
 #recent-img { position: relative; float: left; width: 572px;}
-#recent-img h3 {
-  width: 90%;
+#recent-img h3, .recent-img-d h3 {
+  /* width: 90%; */
   color: #777;
   font-size: 16pt;
-  clear: both;
+  /* clear: both; */
+  /*float: left; */
   font-weight: normal;
   margin: 12px 15px 25px 0;
   border-bottom: 1px solid #DDD;
   padding-bottom: 8px;
 }
-#recent-img h3 a:link, #recent-img h3 a:visited { color: #777; }
+#recent-img h3 a:link, #recent-img h3 a:visited, .recent-img-d h3 a:link, .recent-img-d h3 a:visited { color: #777; }
 #content .recent-img-d { padding: 0px; }
 .r-img { width: 280px; float: left; height: 100px; border-right: 5px solid #FFF; margin-bottom: 15px; overflow: hidden;}
 * html .r-img { overflow: hidden; }
