@@ -45,6 +45,7 @@ class Template {
     }
     function render() {
         global $app, $indent;
+        $start_time = get_time();
         $indent++;
         $mustache = new Mustache_Engine(array(
             'escape' => function($val) { return $val; }
@@ -139,9 +140,21 @@ class Template {
                     print_r($data);
                 }
             }
+            $end_time = sprintf("%.4f", (get_time()-$start_time));
+            $time = "<!-- Time: $end_time seconds -->";
+            $data = array_merge($data, array('load_time' => $time));
             return $mustache->render($this->template,
                                      array_merge($app->config->get_data(),
                                                  $data));
+            /* it show begin before Doctype
+            if (DEBUG) {
+                return "\n<!-- begin: " . $this->name . " -->\n" .
+                    $ret .
+                    "<!-- end: " . $this->name . " -->\n";
+            } else {
+                return $ret;
+            }
+            */
         }
     }
 }

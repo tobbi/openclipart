@@ -12,10 +12,10 @@
     <link rel="stylesheet" type="text/css"  href="/style.css"/>
 </head>
 <body>
-    <!--debug: start main(14)-->
+    {{! start main(14) }}
     <div id="main">
-        <!-- HEADER LOGGED IN -->
-        <!--debug: start header(21)-->
+        {{! HEADER LOGGED IN }}
+        {{! start header(21) }}
         <div id="header" >
             <h1 id="logo">
                 <a title="OpenClipart.org" href="{{root}}">
@@ -66,8 +66,8 @@
                 -->
             </div>
         </div>
-        <!--debug: end header(21)-->
-        <!--debug: start container(16)--> 
+        {{! end header(21) }}
+        {{! start container(16) }}
         <div id="container">
             <ul class="clearfix" id="mainnav">
                 <li><a title="Openclipart Artists" href="{{root}}/artists">Artists</a></li>
@@ -83,13 +83,12 @@
                 <li class="launchpad"><a title="Want Features?" href="http://blueprints.launchpad.net/openclipart">Want Features?</a></li>
             </ul>
         </div>
-        <!--debug: end container(16)-->
-        <!--debug: start notifications-bar(1975)-->
+        {{! end container(16) }}
+        {{! start notifications-bar(1975) }}
 
-        <!--
-           SELECT COUNT(ocal_logs.id) as new_msgs FROM ocal_logs, ocal_msgs WHERE (ocal_logs.msg_id = ocal_msgs.id AND ocal_msgs.written_to = '[username]' AND ocal_logs.log_type = 1 AND ocal_logs.is_new = 1) {{WHY: ORDER BY ocal_logs.id DESC }}
+        {{! SELECT COUNT(ocal_logs.id) as new_msgs FROM ocal_logs, ocal_msgs WHERE (ocal_logs.msg_id = ocal_msgs.id AND ocal_msgs.written_to = '[username]' AND ocal_logs.log_type = 1 AND ocal_logs.is_new = 1) -- WHY: ORDER BY ocal_logs.id DESC }}
 
-           You have ((new_msgs)) new <a href="/manage/profile">messages</a>.
+         <!--  You have ((new_msgs)) new <a href="/manage/profile">messages</a>.
 
            or
 
@@ -103,9 +102,9 @@
           </div>
           {{/notifications}}
         </div>
-        <!--debug: start content(17)-->  <!-- [EMPTY] -->
+        {{! start content(17)  [EMPTY] }}
         <div id="content"  class="clearfix">
-          <!--start upload-box(865)-->
+          {{!start upload-box(865)}}
 
           <!-- {{join.template}} || {{upload.template}} -->
 
@@ -123,15 +122,14 @@
          
 
 
-        <!--start recent-collections-box(1195)-->
-        <!--
-SELECT set_list_titles.id, set_list_titles.username, set_list_titles.set_title, set_list_titles.date_added, set_list_contents.image_id FROM set_list_titles, set_list_contents WHERE set_list_titles.id = set_list_contents.set_list_id GROUP BY set_list_titles.id ORDER BY set_list_titles.id DESC LIMIT 3
-        -->
+        {{! start recent-collections-box(1195) }}
+
+        {{!SELECT set_list_titles.id, set_list_titles.username, set_list_titles.set_title, set_list_titles.date_added, set_list_contents.image_id FROM set_list_titles, set_list_contents WHERE set_list_titles.id = set_list_contents.set_list_id GROUP BY set_list_titles.id ORDER BY set_list_titles.id DESC LIMIT 3}}
         <div id="recent-collections-box"  class="sidebox">
 
         </div>
       </div>
-      <!-- start footer(20)--> 
+      {{! start footer(20) }}
       <div id="footer">
         <div class="clearfix" id="forfooter">
           <dl>
@@ -158,7 +156,7 @@ SELECT set_list_titles.id, set_list_titles.username, set_list_titles.set_title, 
           <a href="http://www.openfontlibrary.org/">Open Font Library</a>,
           <a href="http://sharism.org/">Sharism ✳</a>
         </div>
-        <!--
+        {{#google_analytics}}
         <script type="text/javascript">
         var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
         document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -170,10 +168,13 @@ SELECT set_list_titles.id, set_list_titles.username, set_list_titles.set_title, 
         pageTracker._trackPageview();
         } catch(err) {}
         </script>
-        -->
+        {{/google_analytics}}
         <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-        <script src="{{root}}/libs/json/json-rpc/json-rpc.js"></script>
-    </div><!-- #main -->
-
+        <script src="{{root}}/libs/json-rpc/json-rpc.js"></script>
+        <script src="{{root}}/script.js"></script>
+      </div><!-- #main -->
+      {{#debug}}
+        {{load_time}}
+      {{/debug}}
 </body>
 </head>

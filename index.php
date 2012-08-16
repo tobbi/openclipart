@@ -19,9 +19,10 @@
  *  author: Jakub Jankiewicz <http://jcubic.pl>
  */
 
-
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 ini_set('display_errors', 'On');
+
+define('DEBUG', true);
 
 require_once('libs/utils.php');
 require_once('libs/Template.php');
@@ -45,7 +46,9 @@ $app = new System(function() {
         'top_artist_last_month_limit' => 10,
         'home_page_thumbs_limit' => 8,
         'home_page_collections_limit' => 5,
-        'home_page_news_limit' => 3
+        'home_page_news_limit' => 3,
+        'google_analytics' => false,
+        'debug' => true
     ));
 });
 
@@ -79,6 +82,7 @@ $app->get("/detail/:id/:link", function($id, $link) use ($app) {
 $app->get("/user-detail/:username", function($username) use ($app) {
 
 });
+
 
 function create_thumbs($where, $order_by) {
     global $app;
@@ -119,6 +123,7 @@ function create_thumbs($where, $order_by) {
 
 
 $app->get('/', function() {
+    global $app;
     $main = new Template('main', function() {
         return array('content' =>
                      array(new Template('wellcome', null),
@@ -195,15 +200,20 @@ $app->get('/', function() {
                      )
         ); //array('content'
     }); // new Template('main'
-    $start_time = get_time();
-    $result = $main->render();
-    echo $result;
-    // load time
-	$end_time = sprintf("%.4f", (get_time()-$start_time));
-    echo "\n <!-- Time: $end_time seconds -->";
+    echo $main->render();
 });
 
 
+
+$app->get('/clipart/:id/:link', function($id, $link) {
+    $main = new Template('main', function() {
+        return array('content' => array(
+            new Template('clipart_detail', function() {
+            })
+        ));
+    });
+    return $main->render();
+});
 
 
 $app->get('/image/:width/:user/:filename', function($w, $user, $file) {

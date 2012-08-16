@@ -32,7 +32,7 @@ class ArrayObjectFacade {
         return $this->data[$name];
     }
     function exists($name) {
-        return in_array($name, $this->data);
+        return in_array($name, array_keys($this->data));
     }
     function get_data() {
         return $this->data;

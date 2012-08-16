@@ -1337,3 +1337,15 @@ ul.img-actions {padding-top: 5px; padding-bottom: 12px;}
     width: auto;
     display: inline;
 }
+/******** COPYRIGHT ALERT *********/
+#copyright-violation-alert {
+    visibility: hidden;
+    z-Index: 200;
+    position: absolute;
+    top: 250px;
+    width: 250px;
+    height: 250px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin-left: -20px;
+}
