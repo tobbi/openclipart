@@ -34,7 +34,4 @@ class ArrayObjectFacade {
     function exists($name) {
         return in_array($name, array_keys($this->data));
     }
-    function get_data() {
-        return $this->data;
-    }
 }

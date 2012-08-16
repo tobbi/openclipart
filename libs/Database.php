@@ -35,6 +35,9 @@ class Database {
                                         $this->conn->connect_error);
         }
     }
+    function escape($string) {
+        return $this->conn->real_escape_string($string);
+    }
     function get_array($query) {
         $result = array();
         $ret = $this->conn->query($query);

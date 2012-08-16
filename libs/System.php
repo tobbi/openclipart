@@ -29,6 +29,7 @@ class System {
     private $user_id;
     private $user_name;
     private $groups;
+    private $original_config;
     public $config;
     public $db;
     function __construct($arg) {
@@ -41,16 +42,25 @@ class System {
             throw new Exception("System Argument need to be an array " .
                                 "or a function that return an array");
         }
-        $this->config = new ArrayObjectFacade($arg);
-        $this->db = new Database($this->config->db_host,
-                                 $this->config->db_user,
-                                 $this->config->db_pass,
-                                 $this->config->db_name);
+        $this->db = new Database($arg['db_host'],
+                                 $arg['db_user'],
+                                 $arg['db_pass'],
+                                 $arg['db_name']);
         if (isset($_SESSION['userid'])) {
             // get user from database
         }
+        // TODO: select user groups
+        $this->groups = array();
+        $this->original_config = $arg;
+        if ($this->is_admin()) {
+            $arg = array_merge($arg, normalized_get_array());
+        }
+        $this->config = new ArrayObjectFacade($arg);
     }
-    function login() {
+    function config_array() {
+        return $this->original_config;
+    }
+    function login($username, $password) {
     }
     function is_logged() {
         return $this->user_id != null;
@@ -58,11 +68,16 @@ class System {
     function get_user_id() {
         return $this->user_id;
     }
+    function is_admin() {
+        //debug
+        return true;
+        return $this->is_logged() && in_array('admin', $this->groups);
+    }
     function get_user_name() {
         return $this->user_name;
     }
     function is_librarian() {
-        return in_array('librarian', $this->groups);
+        return $this->is_logged() && in_array('librarian', $this->groups);
     }
     function __call($method, $argv) {
         return call_user_func_array(array($this->slim, $method), $argv);

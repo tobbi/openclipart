@@ -79,3 +79,16 @@ function size($min, $max) {
         return round((((100-$min) * $count) / $max) + $min);
     };
 }
+
+function normalized_get_array() {
+    return array_map(function($val) {
+        if ($val == 'true' ||
+            $val == 'false' ||
+            is_numeric($val) ||
+            preg_match("/^ *(\[|\{)/", $val)) { // json array or json object
+            return json_decode($val);
+        } else {
+            return $val;
+        }
+    }, $_GET);
+}

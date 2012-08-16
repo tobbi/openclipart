@@ -42,13 +42,17 @@ $app = new System(function() {
     $config = get_object_vars(json_decode(file_get_contents('config.json')));
     return array_merge($config, array(
         'root' => 'http://staging.openclipart.org',
+        'root_directory' => dirname(__FILE__),
         'tag_limit' => 100,
         'top_artist_last_month_limit' => 10,
         'home_page_thumbs_limit' => 8,
         'home_page_collections_limit' => 5,
         'home_page_news_limit' => 3,
+        'bitmap_resolution_limit' => 3840,
         'google_analytics' => false,
-        'debug' => true
+        'show_facebook' => false,
+        'debug' => true,
+        'track_download' => true
     ));
 });
 
@@ -162,7 +166,8 @@ $app->get('/', function() {
                          new Template('news_box', function() {
                              global $app;
                              $query = "SELECT link, title FROM openclipart_news ORDER by date DESC LIMIT " . $app->config->home_page_news_limit;
-                             return array('news' => $app->db->get_array($query));
+                             return array('news' =>
+                                          array_reverse($app->db->get_array($query)));
                          }),
                          new Template('tag_cloud', function() {
                              global $app;
@@ -203,50 +208,85 @@ $app->get('/', function() {
     echo $main->render();
 });
 
-
+$app->get('/test/:x', function($x) {
+    echo $x;
+    return;
+    $main = new Template('test', function() {
+        return array('foo' => function($query) {
+            global $app;
+            $array = $app->db->get_array($query);
+            return implode(' | ', $array[0]);
+        });
+    });
+    echo $main->render();
+});
 
 $app->get('/clipart/:id/:link', function($id, $link) {
     $main = new Template('main', function() {
         return array('content' => array(
             new Template('clipart_detail', function() {
+                
+                $tags = "SELECT ";
+                //editable - librarian or clipart owner
             })
         ));
     });
     return $main->render();
 });
 
+// routing /people/*.svg
+$app->get('/download/:user/:filename', function($user, $filename) {
+    global $app;
+    $svg = $app->config->root_directory . "/people/" . $user . "/" . $filename;
+    if (!file_exists($svg) || filesize($svg) == 0) { // old OCAL have some 0 size files
+        $app->notFound();
+    } else {
+        $response = $app->response();
+        $response['Content-Type'] = 'application/octet-stream';
+        if ($app->config->track_download) {
+            $user = $app->db->escape($user);
+            $filename = $app->db->escape($filename);
+            $query = "UPDATE openclipart_clipart SET downloads = downloads + 1 WHERE owner = (SELECT id FROM openclipart_users WHERE user_name = '$user') AND filename = '$filename'";
+            $app->db->query($query);
+        }
+        echo file_get_contents($svg);
+    }
+});
+
 
 $app->get('/image/:width/:user/:filename', function($w, $user, $file) {
     global $app;
     $width = intval($w);
+    $png = $app->config->root_directory . "/people/$user/${width}px-$file";
+    $svg = $app->config->root_directory . "/people/$user/" .
+        preg_replace("/.png$/", '.svg', $file);
     $response = $app->response();
-    $response['Content-Type'] = 'image/png';
-    $root_dir = dirname(__FILE__);
-    $png = "$root_dir/people/$user/${width}px-$file";
-    $svg = "$root_dir/people/$user/" . preg_replace("/.png$/", '.svg', $file);
-    if ($width > 3840) {
+    if ($width > $app->config->bitmap_resolution_limit) {
         $response->status(400);
-        $response['Content-Type'] = 'text/html';
         // TODO: error template
         echo "Resolution couldn't be higher then 3840px! Please download SVG and produce such huge bitmap locally.";
-    } else if (!file_exists($svg)) {
+    } else if (!file_exists($svg) || filesize($svg) == 0) {
+        // NOTE: you don't need to check user and file for script injection because
+        //       file_exists will prevent this
         $app->notFound();
-    } else if (file_exists($png)) {
-        echo file_get_contents($png);
     } else {
-        exec("rsvg --width $width $svg $png");
-        if (!file_exists($png)) {
-            $response['Content-Type'] = "text/html";
-            $app->pass();
-        } else {
+        $response['Content-Type'] = 'image/png';
+        if (file_exists($png)) {
             echo file_get_contents($png);
+        } else {
+            exec("rsvg --width $width $svg $png");
+            if (!file_exists($png)) {
+                $response['Content-Type'] = "text/html";
+                $app->pass();
+            } else {
+                echo file_get_contents($png);
+            }
         }
     }
 });
 
 $app->post('/rpc/:name', function($name) use ($app) {
-    $root_dir = dirname(__FILE__);
-    $filename = "$root_dir/rpc/".$name.".php";
+    $filename = $app->config->root_directory . "/rpc/".$name.".php";
     require('libs/json-rpc/json-rpc.php');
     if (class_exists($name)) {
         handle_json_rpc(new $name());

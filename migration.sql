@@ -23,9 +23,9 @@ DROP TABLE IF EXISTS openclipart_log_meta;
 
 
 -- FILES
-CREATE TABLE openclipart_clipart(id integer NOT NULL auto_increment, filename varchar(255), title varchar(255), link varchar(255), owner integer NOT NULL, sha1 varchar(40), downloads integer, hidden boolean default 0, created datetime, modifed datetime, PRIMARY KEY(id), FOREIGN KEY(owner) REFERENCES openclipart_users(id));
+CREATE TABLE openclipart_clipart(id integer NOT NULL auto_increment, filename varchar(255), title varchar(255), link varchar(255), description TEXT, owner integer NOT NULL, original_author VARCHAR(255) DEFAULT NULL, sha1 varchar(40), filesize INTEGER, downloads integer, hidden boolean default 0, created datetime, modifed datetime, PRIMARY KEY(id), FOREIGN KEY(owner) REFERENCES openclipart_users(id));
 
-INSERT INTO openclipart_clipart(id, filename, title, owner, sha1, downloads, hidden, created) SELECT ocal_files.id, filename, upload_name, users.userid, sha1, file_num_download, not upload_published, upload_date FROM ocal_files LEFT JOIN aiki_users users ON users.username = ocal_files.user_name INNER JOIN (SELECT MIN(userid) as userid FROM aiki_users GROUP by username) minids ON minids.userid = users.userid;
+INSERT INTO openclipart_clipart(id, filename, title, description, owner, sha1, downloads, hidden, created) SELECT ocal_files.id, filename, upload_name, upload_description, users.userid, sha1, file_num_download, not upload_published, upload_date FROM ocal_files LEFT JOIN aiki_users users ON users.username = ocal_files.user_name INNER JOIN (SELECT MIN(userid) as userid FROM aiki_users GROUP by username) minids ON minids.userid = users.userid;
 
 
 -- USERS

@@ -6,12 +6,12 @@
 	  </a>
 	</div>
 	<h4>
-	  <a href="/detail/{{id}}/{{link}}">{{upload_name}}</a>
+	  <a href="/detail/{{id}}/{{link}}">{{title}}</a>
 	</h4>
 	<p>by <a href="/user/{{user_name}}">{{user_name}}</a><br />
 	{{human_date}}
     </p>
-    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/people/{{user_name}}/{{filename}}"><img src="/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{downloads}}</p>
+    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/download/{{user_name}}/{{filename}}"><img src="/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{downloads}}</p>
     <!-- is logged in? -->
     <!-- inherit:1591 - favorite-icon-->
     <!-- SELECT ocal_files.upload_name, aiki_users.username as artist_name, ocal_files.id, aiki_users.email FROM ocal_files, aiki_users WHERE ocal_files.user_name = aiki_users.username AND ocal_files.id = ((id)) LIMIT 1 -->
