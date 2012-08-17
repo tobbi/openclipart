@@ -92,3 +92,25 @@ function normalized_get_array() {
         }
     }, $_GET);
 }
+
+// array_filter check only values
+function filter_pair($array, $fun) {
+    $result = array();
+    if (empty($array)) {
+        return $result;
+    }
+    foreach($array as $k => $v) {
+        if ($fun($k, $v)) {
+            $result[$k] = $v;
+        }
+    }
+    return $result;
+}
+
+function query_sring($array) {
+    $result = array();
+    foreach ($array as $k => $v) {
+        $result[] = "$k=$v";
+    }
+    return implode('&', $result);
+}

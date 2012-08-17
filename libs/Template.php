@@ -46,11 +46,12 @@ class Template {
         $mustache = new Mustache_Engine(array(
             'escape' => function($val) { return $val; }
         ));
+        $config = $app->config_array();
         if ($this->user_data === null) {
-            return $mustache->render($this->template,
-                                     array_merge(
-                                         $app->config_array(),
-                                         $app->is_admin() ? $get_array : array()));
+            if ($app->can_overwrite_mustache()) {
+                $data = array_merge($config, $get_array);
+            }
+            return $mustache->render($this->template, $data);
         } else {
             $user_data = $this->user_data;
             if (is_callable($this->user_data)) {
@@ -67,7 +68,7 @@ class Template {
             }
             $data = array();
             foreach ($user_data as $name => $value) {
-                if ($app->is_admin() && isset($get_array[$name])) {
+                if ($app->can_overwrite_mustache() && isset($get_array[$name])) {
                     $data[$name] = $get_array[$name];
                 } else if (gettype($value) == 'array') {
                     $data[$name] = array();
@@ -93,10 +94,10 @@ class Template {
             }
             $end_time = sprintf("%.4f", (get_time()-$start_time));
             $time = "<!-- Time: $end_time seconds -->";
-            $data = array_merge($app->config_array(),
+            $data = array_merge($config,
                                 array('load_time' => $time),
                                 $data,
-                                $app->is_admin() ? $get_array : array());
+                                $app->can_overwrite_mustache() ? $get_array : array());
             return $mustache->render($this->template, $data);
             /* it show begin before Doctype
             if (DEBUG) {

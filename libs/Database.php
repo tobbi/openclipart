@@ -38,24 +38,39 @@ class Database {
     function escape($string) {
         return $this->conn->real_escape_string($string);
     }
-    function get_array($query) {
-        $result = array();
+    function query($string) {
         $ret = $this->conn->query($query);
         if (!$ret) {
             throw new DatabaseException($this->conn->error);
         }
+        return $ret;
+    }
+    function get_array($query) {
+        $result = array();
+        $ret = $this->query($query);
         while ($row = $ret->fetch_assoc()) {
             $result[] = $row;
         }
         $ret->close();
         return $result;
     }
+    function get_row($query) {
+        $result = array();
+        $ret = $this->query($query);
+        $result = $ret->fetch_assoc();
+        $ret->close();
+        return $result;
+    }
+    function get_assoc($query) {
+        $result = array();
+        $ret = $this->query($query);
+        $result = $ret->fetch_assoc();
+        $ret->close();
+        return $result;
+    }
     function get_column($query) {
         $result = array();
-        $ret = $this->conn->query($query);
-        if (!$ret) {
-            throw new DatabaseException($this->conn->error);
-        }
+        $ret = $this->query($query);
         while ($row = $ret->fetch_row()) {
             $result[] = $row[0];
         }
@@ -64,10 +79,7 @@ class Database {
     }
     function get_value($query) {
         $result = array();
-        $ret = $this->conn->query($query);
-        if (!$ret) {
-            throw new DatabaseException($this->conn->error);
-        }
+        $ret = $this->query($query);
         $result = $ret->fetch_row();
         $ret->close();
         return $result[0];

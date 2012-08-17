@@ -41,9 +41,10 @@ $app = new System(function() {
      *  db_user, db_host, db_pass, db_name
      */
     $config = get_object_vars(json_decode(file_get_contents('config.json')));
+    $protocol = (isset($_SERVER['HTTPS'])) ? 'https' : 'http';
     return array_merge($config, array(
-        'root' => 'http://staging.openclipart.org',
-        'root_directory' => dirname(__FILE__),
+        'root' => $protocol . '://' . $_SERVER['HTTP_HOST'],
+        'root_directory' => $_SERVER['DOCUMENT_ROOT'], // dirname(__FILE__),
         'tag_limit' => 100,
         'top_artist_last_month_limit' => 10,
         'home_page_thumbs_limit' => 8,
@@ -53,6 +54,8 @@ $app = new System(function() {
         'google_analytics' => false,
         'show_facebook' => false,
         'debug' => true,
+        //user for admin only; track - initialy to disable download count in edit button
+        'forward_query_list' => array('nsfw', 'track', 'user'),
         'nsfw_image' => array(
             'user' => 'h0us3s',
             'filename' => 'h0us3s_Signs_Hazard_Warning_1'
@@ -82,6 +85,9 @@ $app->post('/login', function() use ($app) {
 
     }
 });
+$app->get('/login', function() use ($app) {
+    echo 'redirect to ' . $app->GET->redirect;
+});
 
 $app->get("/register", function() use ($app) {
 
@@ -94,7 +100,6 @@ $app->get("/detail/:id/:link", function($id, $link) use ($app) {
 $app->get("/user-detail/:username", function($username) use ($app) {
 
 });
-
 
 function create_thumbs($where, $order_by) {
     global $app;
@@ -136,88 +141,93 @@ function create_thumbs($where, $order_by) {
 $app->get('/', function() {
     global $app;
     $main = new Template('main', function() {
-        return array('content' =>
-                     array(new Template('wellcome', null),
-                           new Template('most_popular_thumbs', function() {
-                               return array(
-                                   'content' => new Template('clipart_list', function() {
-                                       $last_week = "(SELECT WEEK(max(date)) FROM ".
-                                           "openclipart_favorites) = WEEK(date) AND ".
-                                           "YEAR(NOW()) = YEAR(date)";
-                                       return create_thumbs($last_week, "num_favorites");
-                                   })
-                               );
-                           }),
-                           new Template('new_clipart_thumbs', function() {
-                               return array(
-                                   'content' => new Template('clipart_list', function() {
-                                       return create_thumbs(null, "created");
-                                   })
-                               );
-                           }),
-                           new Template('top_download_thumbs', function() {
-                               return array(
-                                   'content' => new Template('clipart_list', function() {
-                                       $top_download = "YEAR(created) = YEAR(CURRENT_".
-                                           "DATE) AND MONTH(created) = MONTH(CURRENT_".
-                                           "DATE)";
-                                       return create_thumbs($top_download, "downloads");
-                                   })
-                               );
-                           })
-                     ),
-                     'sidebar' => array(
-                         new Template('join', null),
-                         new Template('facebook_box', null),
-                         new Template('follow_us_box', null),
-                         new Template('news_box', function() {
-                             global $app;
-                             $query = "SELECT link, title FROM openclipart_news ORDER by date DESC LIMIT " . $app->config->home_page_news_limit;
-                             return array('news' =>
-                                          array_reverse($app->db->get_array($query)));
-                         }),
-                         new Template('tag_cloud', function() {
-                             global $app;
-                             $query = "SELECT count(openclipart_tags.id) as tag_count  FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT 1";
-                             $max = $app->db->get_value($query);
-                             $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $app->config->tag_limit;
-                             $result = array();
-                             $rows = $app->db->get_array($query);
-                             shuffle($rows);
-                             $normalize = size('20', $max);
-                             return array('tags' =>
-                                          array_map(function($row) use ($normalize) {
-                                              return array(
-                                                  'name' => $row['name'],
-                                                  'size' => $normalize($row['tag_count'])
-                                              );
-                                          }, $rows)
-                             );
-                         }),
-                         new Template('top_artists_last_month', function() {
-                             global $app;
-                             $query = "SELECT full_name, username, count(filename) AS num_uploads FROM openclipart_clipart INNER JOIN openclipart_users ON owner = openclipart_users.id  WHERE date_format(created, '%Y-%c') = date_format(now(), '%Y-%c') GROUP BY openclipart_users.id ORDER BY num_uploads DESC LIMIT " . $app->config->top_artist_last_month_limit;
-                             return array('artists' => $app->db->get_array($query));
-                         }),
-                         new Template('latest_collections_box', function() {
-                             global $app;
-                             $query = "SELECT openclipart_collections.id, name, title, username, date FROM openclipart_collections INNER JOIN openclipart_users ON user = openclipart_users.id ORDER BY date DESC LIMIT " . $app->config->home_page_collections_limit;
-                             return array('collections' => array_map(function($row) {
-                                 return array_merge($row, array(
-                                     'human_date' => human_date($row['date'])
-                                 ));
-                             }, $app->db->get_array($query)));
-                         })
-                     )
+        return array(
+            'content' => array(new Template('wellcome', null),
+                  new Template('most_popular_thumbs', function() {
+                      return array(
+                          'content' => new Template('clipart_list', function() {
+                              $last_week = "(SELECT WEEK(max(date)) FROM ".
+                                  "openclipart_favorites) = WEEK(date) AND ".
+                                  "YEAR(NOW()) = YEAR(date)";
+                              return create_thumbs($last_week, "num_favorites");
+                          })
+                      );
+                  }),
+                  new Template('new_clipart_thumbs', function() {
+                      return array(
+                          'content' => new Template('clipart_list', function() {
+                              return create_thumbs(null, "created");
+                          })
+                      );
+                  }),
+                  new Template('top_download_thumbs', function() {
+                      return array(
+                          'content' => new Template('clipart_list', function() {
+                              $top_download = "YEAR(created) = YEAR(CURRENT_".
+                                  "DATE) AND MONTH(created) = MONTH(CURRENT_".
+                                  "DATE)";
+                              return create_thumbs($top_download, "downloads");
+                          })
+                      );
+                  })
+            ),
+            'sidebar' => array(
+                new Template('join', null),
+                new Template('facebook_box', null),
+                new Template('follow_us_box', null),
+                new Template('news_box', function() {
+                    global $app;
+                    $query = "SELECT link, title FROM openclipart_news ORDER by date DESC LIMIT " . $app->config->home_page_news_limit;
+                    return array('news' =>
+                                 array_reverse($app->db->get_array($query)));
+                }),
+                new Template('tag_cloud', function() {
+                    global $app;
+                    $query = "SELECT count(openclipart_tags.id) as tag_count  FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT 1";
+                    $max = $app->db->get_value($query);
+                    $query = "SELECT openclipart_tags.name, count(openclipart_tags.id) as tag_count FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag GROUP BY tag ORDER BY tag_count DESC LIMIT " . $app->config->tag_limit;
+                    $result = array();
+                    $rows = $app->db->get_array($query);
+                    shuffle($rows);
+                    $normalize = size('20', $max);
+                    return array('tags' =>
+                                 array_map(function($row) use ($normalize) {
+                                     return array(
+                                         'name' => $row['name'],
+                                         'size' => $normalize($row['tag_count'])
+                                     );
+                                 }, $rows)
+                    );
+                }),
+                new Template('top_artists_last_month', function() {
+                    global $app;
+                    $query = "SELECT full_name, username, count(filename) AS num_uploads FROM openclipart_clipart INNER JOIN openclipart_users ON owner = openclipart_users.id  WHERE date_format(created, '%Y-%c') = date_format(now(), '%Y-%c') GROUP BY openclipart_users.id ORDER BY num_uploads DESC LIMIT " . $app->config->top_artist_last_month_limit;
+                    return array('artists' => $app->db->get_array($query));
+                }),
+                new Template('latest_collections_box', function() {
+                    global $app;
+                    $query = "SELECT openclipart_collections.id, name, title, username, date FROM openclipart_collections INNER JOIN openclipart_users ON user = openclipart_users.id ORDER BY date DESC LIMIT " . $app->config->home_page_collections_limit;
+                    return array('collections' => array_map(function($row) {
+                        return array_merge($row, array(
+                            'human_date' => human_date($row['date'])
+                        ));
+                    }, $app->db->get_array($query)));
+                })
+            )
         ); //array('content'
     }); // new Template('main'
     echo $main->render();
 });
 
-$app->get('/test/:x', function($x) {
+$app->get('/test', function() {
     global $app;
-    echo $app->nsfw() ? 'true' : 'false';
-    echo "<br/>";
+    $response = $app->response();
+    $response['Content-Type'] = 'text/plain';
+    print_r($_SERVER) . "\n";
+    echo $_SERVER['REQUEST_URI'] . "\n";
+    echo 'nsfw: ' . $app->nsfw() ? 'true' : 'false';
+    echo "\n";
+    echo (empty($_GET) ? 'true' : 'false') . "\n";
     return;
     $main = new Template('test', function() {
         return array('foo' => function($query) {

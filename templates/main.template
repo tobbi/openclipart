@@ -18,31 +18,31 @@
         {{! start header(21) }}
         <div id="header" >
             <h1 id="logo">
-                <a title="OpenClipart.org" href="{{root}}">
+                <a title="OpenClipart.org" href="{{root}}{{forward_query}}">
                     <img alt="OpenClipart.org" style="width: 272px; height: 93px;" src="{{root}}/images/logo.jpg"/>
                 </a>
             </h1>
             <div id="logged">
               {{#username}}
                 <ul>
-                    <li><a href="{{root}}/user-detail/{{username}}" title="My Public Profile">{{username}}</a></li>
+                    <li><a href="{{root}}/user/{{username}}{{forward_query}}" title="My Public Profile">{{username}}</a></li>
                     <li>|</li>
-                    <li><a href="{{root}}/manage/profile" title="Manage my profile" >Manage Profile</a></li>
+                    <li><a href="{{root}}/profile{{forward_query}}" title="Manage my profile" >Manage Profile</a></li>
                     <li>|</li>
-                    <li><a href="{{root}}/manage/cliparts" title="Manage my cliparts">Manage Clipart</a></li>
+                    <li><a href="{{root}}/manage/cliparts{{forward_query}}" title="Manage my cliparts">Manage Clipart</a></li>
 					{{#librarian}}
                       <li>|</li>
-                      <li><a href="{{root}}/librarians">Librarian Tools</a></li>
+                      <li><a href="{{root}}/librarians{{forward_query}}">Librarian Tools</a></li>
                     {{/librarian}}
                     <li>|</li>
-                    <li><a href="{{root}}/logout">Logout</a></li>
+                    <li><a href="{{root}}/logout{{forward_query}}">Logout</a></li>
                 </ul>
               {{/username}}
               {{^username}}
                 <ul>
-                 <li><a href="{{root}}/login{{redirect}}">Log in</a></li>
+                 <li><a href="{{root}}/login{{forward_query}}{{redirect}}">Log in</a></li>
                  <li>|</li>
-                 <li><a href="{{root}}/register">Register</a></li>
+                 <li><a href="{{root}}/register{{forward_query}}">Register</a></li>
                 </ul>
               {{/username}}
               <div class="clearfix"></div>

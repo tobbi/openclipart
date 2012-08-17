@@ -28,6 +28,9 @@ class ArrayObjectFacade {
             $this->data = $arg;
         }
     }
+    function get($name, $default=null) {
+        return $this->exists($name) ? $this->data[$name] : $default;
+    }
     function __get($name) {
         return $this->data[$name];
     }

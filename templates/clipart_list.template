@@ -1,17 +1,17 @@
 {{#cliparts}}
   <div class="r-img">
     <div class="r-img-i">
-	  <a href="/detail/{{id}}/{{link}}">
-	  <img alt="#" src="/image/90/{{username}}/{{filename_png}}"/>
+	  <a href="/detail/{{id}}/{{link}}{{forward_query}}">
+	  <img alt="#" src="/image/90/{{username}}/{{filename_png}}{{forward_query}}"/>
 	  </a>
 	</div>
 	<h4>
-	  <a href="/detail/{{id}}/{{link}}">{{title}}</a>
+	  <a href="/detail/{{id}}/{{link}}{{forward_query}}">{{title}}</a>
 	</h4>
-	<p>by <a href="/user/{{username}}">{{username}}</a><br />
+	<p>by <a href="/user/{{username}}{{forward_query}}">{{username}}</a><br />
 	{{human_date}}
     </p>
-    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/download/{{username}}/{{filename}}"><img src="/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{downloads}}</p>
+    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/download/{{username}}/{{filename}}{{forward_query}}"><img src="/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{downloads}}</p>
     <!-- is logged in? -->
     <!-- inherit:1591 - favorite-icon-->
     <!-- SELECT ocal_files.upload_name, aiki_users.username as artist_name, ocal_files.id, aiki_users.email FROM ocal_files, aiki_users WHERE ocal_files.username = aiki_users.username AND ocal_files.id = ((id)) LIMIT 1 -->

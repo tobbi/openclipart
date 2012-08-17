@@ -31,6 +31,7 @@ class System {
     private $groups;
     private $original_config;
     public $config;
+    private $nsfw;
     public $db;
     public $GET;
     function __construct($arg) {
@@ -52,32 +53,60 @@ class System {
         }
         // TODO: select user groups
         $this->groups = array();
+        //query paramters that will be forward to urls
+        $redirect =  'redirect=' . $arg['root'] .
+            urlencode($_SERVER['REQUEST_URI']);
+        if (isset($arg['forward_query_list'])) {
+            $forward = filter_pair($_GET, function($k, $v) use($arg) {
+                return in_array($k, $arg['forward_query_list']);
+            });
+            if (!empty($forward)) {
+                $arg['forward_query'] = '?' . query_sring($forward);
+                $arg['redirect'] = '&' . $redirect;
+            } else {
+                $arg['redirect'] = '?' . $redirect;
+            }
+        } else {
+            $arg['redirect'] = '?' . $redirect;
+        }
         $this->original_config = $arg;
-        if ($this->is_admin()) {
+        if ($this->can_overwrite_config()) {
             $arg = array_merge($arg, normalized_get_array());
         }
         $this->config = new ArrayObjectFacade($arg);
         $this->GET = new ArrayObjectFacade(normalized_get_array());
+        if ($this->can_overwrite_user() && $this->config->exists('user')) {
+            // disguise as user
+        }
+    }
+    // can change to admin && developer
+    // this user can act as other users using query string "user=<ID>"
+    // so it can test how the site work for this other user
+    function can_overwrite_user() {
+        return $this->is_admin();
+    }
+    function can_overwrite_config() {
+        return $this->is_admin();
+    }
+    // this user can set data passed to mustache via query string
+    function can_overwrite_mustache() {
+        return $this->is_admin();
     }
     function nsfw() {
-        if ($this->config->exists('nsfw')) {
-            return $this->config->nsfw;
+        if ($this->is_logged()) {
+            return $this->config->get('nsfw', $this->nfsw);
         } else {
-            //TODO: check from database
             return true;
         }
     }
     function track() {
-        if ($this->GET->exists('track')) {
-            return $this->GET->track;
-        } else {
-            return true;
-        }
+        return $this->GET->get('track', true);
     }
     function config_array() {
         return $this->original_config;
     }
     function login($username, $password) {
+        //$this->db->
     }
     function is_logged() {
         return $this->user_id != null;
@@ -93,6 +122,7 @@ class System {
     function get_user_name() {
         return $this->user_name;
     }
+
     function is_librarian() {
         return $this->is_logged() && in_array('librarian', $this->groups);
     }

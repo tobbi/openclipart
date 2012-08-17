@@ -1,9 +1,9 @@
 <div id="tag-cloud" class="sidebox">
-  <h3>Tag Cloud</h3>
+  <h3>Tag Cloud</h3>{{!TODO: link "more tags"}}
   <div class="wrapper">
     <ul>
       {{#tags}}
-        <li class="tag-{{size}}"><a href="/tag/{{name}}">{{name}}</a></li>
+        <li class="tag-{{size}}"><a href="/tag/{{name}}{{forward_query}}">{{name}}</a></li>
       {{/tags}}
     </ul>
   </div>
