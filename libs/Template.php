@@ -97,7 +97,6 @@ class Template {
                                 array('load_time' => $time),
                                 $data,
                                 $app->is_admin() ? $get_array : array());
-            
             return $mustache->render($this->template, $data);
             /* it show begin before Doctype
             if (DEBUG) {

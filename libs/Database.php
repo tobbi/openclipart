@@ -50,7 +50,18 @@ class Database {
         $ret->close();
         return $result;
     }
-
+    function get_column($query) {
+        $result = array();
+        $ret = $this->conn->query($query);
+        if (!$ret) {
+            throw new DatabaseException($this->conn->error);
+        }
+        while ($row = $ret->fetch_row()) {
+            $result[] = $row[0];
+        }
+        $ret->close();
+        return $result;
+    }
     function get_value($query) {
         $result = array();
         $ret = $this->conn->query($query);

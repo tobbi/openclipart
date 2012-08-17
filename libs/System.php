@@ -32,6 +32,7 @@ class System {
     private $original_config;
     public $config;
     public $db;
+    public $GET;
     function __construct($arg) {
         session_start();
         $this->slim = new Slim();
@@ -56,6 +57,22 @@ class System {
             $arg = array_merge($arg, normalized_get_array());
         }
         $this->config = new ArrayObjectFacade($arg);
+        $this->GET = new ArrayObjectFacade(normalized_get_array());
+    }
+    function nsfw() {
+        if ($this->config->exists('nsfw')) {
+            return $this->config->nsfw;
+        } else {
+            //TODO: check from database
+            return true;
+        }
+    }
+    function track() {
+        if ($this->GET->exists('track')) {
+            return $this->GET->track;
+        } else {
+            return true;
+        }
     }
     function config_array() {
         return $this->original_config;

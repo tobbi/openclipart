@@ -27,6 +27,7 @@ define('DEBUG', true);
 require_once('libs/utils.php');
 require_once('libs/Template.php');
 require_once('libs/System.php');
+require_once('libs/Clipart.php');
 
 /* TODO: logs (using slim) and cache in Template::render
  *
@@ -52,7 +53,14 @@ $app = new System(function() {
         'google_analytics' => false,
         'show_facebook' => false,
         'debug' => true,
-        'track_download' => true
+        'nsfw_image' => array(
+            'user' => 'h0us3s',
+            'filename' => 'h0us3s_Signs_Hazard_Warning_1'
+        ),
+        'pd_issue_image' => array(
+            'user' => 'h0us3s',
+            'filename' => 'h0us3s_Signs_Hazard_Warning_1'
+        ),
     ));
 });
 
@@ -90,11 +98,10 @@ $app->get("/user-detail/:username", function($username) use ($app) {
 
 function create_thumbs($where, $order_by) {
     global $app;
-    if ($app->config->exists('nsfw') &&
-        $app->config->nsfw) {
-        $nsfw = '';
+    if ($app->nsfw()) {
+        $nsfw = "AND openclipart_clipart.id not in (SELECT clipart FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON tag = openclipart_tags.id WHERE name = 'nsfw')";
     } else {
-        $nsfw = 'nsfw = 0';
+        $nsfw = '';
     }
     if ($app->is_logged()) {
         $fav_check = $app->get_user_id() . ' in '.
@@ -106,7 +113,7 @@ function create_thumbs($where, $order_by) {
     if ($where != '' && $where != null) {
         $where = "AND $where";
     }
-    $query = "SELECT openclipart_clipart.id, title, filename, link, created, username, count(DISTINCT user) as num_favorites, created, date, $fav_check as user_favm, downloads FROM openclipart_clipart INNER JOIN openclipart_favorites ON clipart = openclipart_clipart.id INNER JOIN openclipart_users ON openclipart_users.id = owner WHERE openclipart_clipart.id NOT IN (SELECT clipart FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag WHERE clipart = openclipart_clipart.id AND openclipart_tags.name = 'pd_issue') $where GROUP BY openclipart_clipart.id ORDER BY $order_by DESC LIMIT " . $app->config->home_page_thumbs_limit;
+    $query = "SELECT openclipart_clipart.id, title, filename, link, created, username, count(DISTINCT user) as num_favorites, created, date, $fav_check as user_favm, downloads FROM openclipart_clipart INNER JOIN openclipart_favorites ON clipart = openclipart_clipart.id INNER JOIN openclipart_users ON openclipart_users.id = owner WHERE openclipart_clipart.id NOT IN (SELECT clipart FROM openclipart_clipart_tags INNER JOIN openclipart_tags ON openclipart_tags.id = tag WHERE clipart = openclipart_clipart.id AND openclipart_tags.name = 'pd_issue') $nsfw $where GROUP BY openclipart_clipart.id ORDER BY $order_by DESC LIMIT " . $app->config->home_page_thumbs_limit;
     $clipart_list = array();
     foreach ($app->db->get_array($query) as $row) {
         $filename_png = preg_replace("/.svg$/",
@@ -200,7 +207,6 @@ $app->get('/', function() {
                                      'human_date' => human_date($row['date'])
                                  ));
                              }, $app->db->get_array($query)));
-
                          })
                      )
         ); //array('content'
@@ -209,7 +215,9 @@ $app->get('/', function() {
 });
 
 $app->get('/test/:x', function($x) {
-    echo $x;
+    global $app;
+    echo $app->nsfw() ? 'true' : 'false';
+    echo "<br/>";
     return;
     $main = new Template('test', function() {
         return array('foo' => function($query) {
@@ -234,42 +242,60 @@ $app->get('/clipart/:id/:link', function($id, $link) {
     return $main->render();
 });
 
+
 // routing /people/*.svg
 $app->get('/download/:user/:filename', function($user, $filename) {
     global $app;
-    $svg = $app->config->root_directory . "/people/" . $user . "/" . $filename;
-    if (!file_exists($svg) || filesize($svg) == 0) { // old OCAL have some 0 size files
+    $clipart = new Clipart($user, $filename);
+    if (!$clipart->exists($svg) || $clipart->size() == 0) {
+        // old OCAL have some 0 size files
         $app->notFound();
     } else {
         $response = $app->response();
         $response['Content-Type'] = 'application/octet-stream';
-        if ($app->config->track_download) {
-            $user = $app->db->escape($user);
-            $filename = $app->db->escape($filename);
-            $query = "UPDATE openclipart_clipart SET downloads = downloads + 1 WHERE owner = (SELECT id FROM openclipart_users WHERE username = '$user') AND filename = '$filename'";
-            $app->db->query($query);
+        if ($app->track()) {
+            $clipart->inc_download();
         }
-        echo file_get_contents($svg);
+        if ($app->nsfw() && $clipart->nsfw()) {
+            $filename = $app->config->root_directory . "/people/" .
+                $app->config->nsfw_image['user'] . "/" .
+                $app->config->nsfw_image['filename'] . ".svg";
+        } else if ($clipart->have_pd_issue()) {
+            $filename = $app->config->root_directory . "/people/" .
+                $app->config->pd_issue_image['user'] . "/" .
+                $app->config->pd_issue_image['filename'] . ".svg";
+        } else {
+            $filename = $clipart->full_path();
+        }
+        echo file_get_contents($filename);
     }
 });
-
 
 $app->get('/image/:width/:user/:filename', function($w, $user, $file) {
     global $app;
     $width = intval($w);
+    $svg_filename = preg_replace("/.png$/", '.svg', $file);
     $png = $app->config->root_directory . "/people/$user/${width}px-$file";
-    $svg = $app->config->root_directory . "/people/$user/" .
-        preg_replace("/.png$/", '.svg', $file);
+    $svg = $app->config->root_directory . "/people/$user/" . $svg_filename;
     $response = $app->response();
+    $clipart = new Clipart($user, $file);
     if ($width > $app->config->bitmap_resolution_limit) {
         $response->status(400);
         // TODO: error template
-        echo "Resolution couldn't be higher then 3840px! Please download SVG and produce such huge bitmap locally.";
-    } else if (!file_exists($svg) || filesize($svg) == 0) {
+        echo "Resolution couldn't be higher then 3840px! Please download SVG and " .
+            "produce such huge bitmap locally.";
+    } else if (!$clipart->exists() || $clipart->size() == 0) {
         // NOTE: you don't need to check user and file for script injection because
         //       file_exists will prevent this
         $app->notFound();
     } else {
+        // NSFW check
+        if ($app->nsfw() && $clipart->nsfw()) {
+            $user = $app->config->nsfw_image['user'];
+            $filename = $app->config->nsfw_image['filename'];
+            $png = $app->config->root_directory . "/people/$user/${width}px-$file.png";
+            $svg = $app->config->root_directory . "/people/$user/$filename.svg";
+        }
         $response['Content-Type'] = 'image/png';
         if (file_exists($png)) {
             echo file_get_contents($png);
@@ -285,6 +311,12 @@ $app->get('/image/:width/:user/:filename', function($w, $user, $file) {
     }
 });
 
+// TODO: rpc permission system
+/*
+class Foo extends LibrarianPermission {
+
+}
+*/
 $app->post('/rpc/:name', function($name) use ($app) {
     $filename = $app->config->root_directory . "/rpc/".$name.".php";
     require('libs/json-rpc/json-rpc.php');

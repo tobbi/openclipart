@@ -7,7 +7,10 @@ RewriteEngine On
 # RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} people/.* [OR]
 RewriteRule ^ index.php [QSA,L]
+
+#RewriteRule people/.* - [F]
 
 # Prevent to access database credentials
 RewriteCond %{REQUEST_FILENAME} config.json
