@@ -29,11 +29,11 @@ INSERT INTO openclipart_clipart(id, filename, title, description, owner, sha1, d
 
 
 -- USERS
-CREATE TABLE openclipart_users(id integer NOT NULL auto_increment, user_name varchar(255) UNIQUE, password varchar(60), full_name varchar(255), country varchar(255), email varchar(255), avatar integer, homepage varchar(255), creation_date datetime, notify boolean, nsfw_filter boolean, rand_key varchar(40), PRIMARY KEY(id), FOREIGN KEY(user_group) REFERENCES openclipart_users_groups(id), FOREIGN KEY(avatar) REFERENCES openclipart_clipart(id));
+CREATE TABLE openclipart_users(id integer NOT NULL auto_increment, username varchar(255) UNIQUE, password varchar(60), full_name varchar(255), country varchar(255), email varchar(255), avatar integer, homepage varchar(255), creation_date datetime, notify boolean, nsfw_filter boolean, rand_key varchar(40), PRIMARY KEY(id), FOREIGN KEY(user_group) REFERENCES openclipart_users_groups(id), FOREIGN KEY(avatar) REFERENCES openclipart_clipart(id));
 
 -- copy non duplicate aiki_users
 
-INSERT INTO openclipart_users(id, user_name, password, full_name, country, email, avatar, homepage, user_group, creation_date, notify, nsfw_filter) SELECT minids.userid, username, password, full_name, country, email, clip.id as avatar, homepage, first_login, notify, nsfwfilter FROM aiki_users users INNER JOIN (SELECT MIN(userid) as userid FROM aiki_users GROUP by username) minids ON minids.userid = users.userid LEFT OUTER JOIN openclipart_clipart clip ON clip.owner = users.userid AND RIGHT(users.avatar, 3) = 'svg' AND clip.filename = users.avatar;
+INSERT INTO openclipart_users(id, username, password, full_name, country, email, avatar, homepage, user_group, creation_date, notify, nsfw_filter) SELECT minids.userid, username, password, full_name, country, email, clip.id as avatar, homepage, first_login, notify, nsfwfilter FROM aiki_users users INNER JOIN (SELECT MIN(userid) as userid FROM aiki_users GROUP by username) minids ON minids.userid = users.userid LEFT OUTER JOIN openclipart_clipart clip ON clip.owner = users.userid AND RIGHT(users.avatar, 3) = 'svg' AND clip.filename = users.avatar;
 
 -- REMIXES
 
@@ -45,7 +45,7 @@ INSERT INTO openclipart_remixes SELECT distinct tree_child, tree_parent FROM cc_
 
 CREATE TABLE openclipart_favorites(clipart integer NOT NULL, user integer NOT NULL, date datetime, PRIMARY KEY(clipart, user), FOREIGN KEY(clipart) REFERENCES openclipart_clipart(id), FOREIGN KEY(user) REFERENCES openclipart_users(id));
 
-INSERT IGNORE INTO openclipart_favorites SELECT DISTINCT openclipart_clipart.id, openclipart_users.id, fav_date FROM ocal_favs LEFT JOIN openclipart_clipart ON openclipart_clipart.id = clipart_id LEFT JOIN openclipart_users ON ocal_favs.username = openclipart_users.user_name;
+INSERT IGNORE INTO openclipart_favorites SELECT DISTINCT openclipart_clipart.id, openclipart_users.id, fav_date FROM ocal_favs LEFT JOIN openclipart_clipart ON openclipart_clipart.id = clipart_id LEFT JOIN openclipart_users ON ocal_favs.username = openclipart_users.username;
 
 -- COMMENTS
 

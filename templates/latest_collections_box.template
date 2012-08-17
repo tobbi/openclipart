@@ -5,9 +5,9 @@
       {{#collections}}
         <li>
           <span>
-            <a href="/collection/{{user_name}}/{{id}}/{{name}}">{{title}}</a>
+            <a href="/collection/{{username}}/{{id}}/{{name}}">{{title}}</a>
             by
-            <a href="/user/{{user_name}}">{{user_name}}</a>
+            <a href="/user/{{username}}">{{username}}</a>
         </li>
         <li class="latest-collections-date">{{human_date}}</li>
       {{/collections}}
