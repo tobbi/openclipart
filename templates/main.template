@@ -146,7 +146,7 @@
           </dl>
         </div>
         <div id="links">
-          <strong><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FSUSWMQXL8AKS">Donate to Support Hosting + Maintenance</a></strong>,
+          <strong><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=FSUSWMQXL8AKS">Donate to Support Hosting + Maintenance</a></strong>,
           <a href="http://aikiframework.org/">Aiki Framework 爻</a>,
           <a href="http://fabricatorz.com/">Fabricatorz 王</a>,
           <a href="http://www.inkscape.org/">Inkscape</a>,
@@ -172,9 +172,11 @@
         <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
         <script src="{{root}}/libs/json-rpc/json-rpc.js"></script>
         <script src="{{root}}/script.js"></script>
-      </div><!-- #main -->
-      {{#debug}}
-        {{load_time}}
-      {{/debug}}
+      </div>
+     {{! end footer(20) }}
+    </div><!-- #main -->
+    {{#debug}}
+      {{load_time}}
+    {{/debug}}
 </body>
-</head>
+</html>

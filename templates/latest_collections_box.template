@@ -8,6 +8,7 @@
             <a href="/collection/{{username}}/{{id}}/{{name}}{{forward_query}}">{{title}}</a>
             by
             <a href="/user/{{username}}{{forward_query}}">{{username}}</a>
+          </span>
         </li>
         <li class="latest-collections-date">{{human_date}}</li>
       {{/collections}}

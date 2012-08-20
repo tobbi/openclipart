@@ -11,7 +11,7 @@
 	<p>by <a href="/user/{{username}}{{forward_query}}">{{username}}</a><br />
 	{{human_date}}
     </p>
-    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/download/{{username}}/{{filename}}{{forward_query}}"><img src="/images/download-icon.png" height="12px" alt="{{upload_name}}" /></a> {{downloads}}</p>
+    <p class="thumbnail_info_downloaded"><a class="download_hook" href="/download/{{username}}/{{filename}}{{forward_query}}"><img src="/images/download-icon.png" style="height: 12px;" alt="{{upload_name}}" /></a> {{downloads}}</p>
     <!-- is logged in? -->
     <!-- inherit:1591 - favorite-icon-->
     <!-- SELECT ocal_files.upload_name, aiki_users.username as artist_name, ocal_files.id, aiki_users.email FROM ocal_files, aiki_users WHERE ocal_files.username = aiki_users.username AND ocal_files.id = ((id)) LIMIT 1 -->
